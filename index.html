@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#12100e">
-<title>Trench Crusade — Калькулятор кубиков</title>
+<title>Trench Crusade — Dice Calculator</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -23,7 +23,7 @@ body{
   background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   font-size:16px;line-height:1.4;
-  padding-bottom:calc(124px + env(safe-area-inset-bottom));
+  padding-bottom:calc(152px + env(safe-area-inset-bottom));
 }
 .wrap{max-width:760px;margin:0 auto;padding:14px 14px 8px}
 button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
@@ -176,6 +176,8 @@ tr.hl td{color:var(--accent);font-weight:700}
 .bottom .big{font-size:38px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--good);flex:0 0 auto}
 .bottom .meta{flex:1 1 auto;font-size:11px;color:var(--muted);min-width:0}
 .bottom .meta b{display:block;color:var(--text);font-size:13px;font-weight:600;margin-bottom:2px}
+.bottom .fine{margin-top:6px;font-size:10px;line-height:1.35;color:var(--dim)}
+.bottom .fine b{display:inline;font-size:10px;font-weight:700;margin:0;color:var(--muted)}
 .gauge{height:6px;background:#1a1714;border-radius:3px;overflow:hidden;margin-top:7px}
 .gauge i{display:block;height:100%;background:var(--good);width:0}
 .gauge4{display:flex;height:6px;background:#1a1714;border-radius:3px;overflow:hidden;margin-top:7px}
@@ -287,7 +289,7 @@ footer{color:var(--dim);font-size:11px;text-align:center;padding:16px 0 4px}
     <input type="checkbox" id="crit" checked>
     <span>
       <span class="t" data-i18n="crit_t">Криты решают исход</span><br>
-      <span class="s" data-i18n="crit_s">сумма учтённых кубов 12+ — автоуспех, 2 и меньше — автопровал (до модификатора)</span>
+      <span class="s" data-i18n="crit_s">итог с модификатором 12+ — автоуспех, 2 и меньше — автопровал</span>
     </span>
   </label>
 
@@ -333,6 +335,7 @@ footer{color:var(--dim);font-size:11px;text-align:center;padding:16px 0 4px}
       <div class="gauge4" data-only="injury">
         <i class="g0" id="g0"></i><i class="g1" id="g1"></i><i class="g2" id="g2"></i><i class="g3" id="g3"></i>
       </div>
+      <div class="fine" id="foot-fine" data-only="action"></div>
     </div>
   </div>
 </div>
@@ -420,7 +423,7 @@ var DEF = {
   injury: { dice:0, flat:0, sum:0, armour:0, rolls:1 }
 };
 var K_STATE = 'tc-dice-state', K_PRESETS = 'tc-dice-presets', K_ACC = 'tc-dice-acc', K_LANG = 'tc-dice-lang';
-var APP_VERSION = '1.2.0';
+var APP_VERSION = '1.3.0';
 var LAST_UPDATE = '2026-08-16';   // дата последнего коммита, обновлять вместе с релизом
 var DONATE_URL = '';              // пока платформа не выбрана
 
@@ -475,8 +478,7 @@ function loadLang(){
   var v = null;
   try{ v = localStorage.getItem(K_LANG); }catch(e){}
   if(v === 'ru' || v === 'en') return v;
-  var nav = (navigator.language || 'ru').toLowerCase();
-  return nav.indexOf('ru') === 0 ? 'ru' : 'en';
+  return 'en';   // базовый язык — английский, пока пользователь не переключил
 }
 var lang = loadLang();
 var D;   // активный словарь, ставится в setLang()
@@ -499,7 +501,7 @@ ru: {
   lbl_target:'Порог успеха', hint_target:'базовый 7+',
   lbl_rolls:'Бросков подряд', hint_rolls:'серия атак / проверок',
   crit_t:'Криты решают исход',
-  crit_s:'сумма учтённых кубов 12+ — автоуспех, 2 и меньше — автопровал (до модификатора)',
+  crit_s:'итог с модификатором 12+ — автоуспех, 2 и меньше — автопровал',
   roll:'Бросить кубы',
   st_cs:'Крит. успех', st_cf:'Крит. провал', st_ev:'Средний бросок',
   acc_deltas:'Что даст ещё один модификатор', acc_series:'Серия бросков',
@@ -540,13 +542,17 @@ ru: {
     return 'Бросаем <b>'+a.N+'d6</b>, суммируем <b>'+a.K+' '+(a.mode==='best'?'лучших':'худших')+'</b>'+
       (s.flat!==0 ? ', затем <b>'+sign(s.flat)+'</b> к сумме' : '')+
       '. Успех при <b>'+s.target+'+</b>.'+
-      (s.crit ? ' Криты: <b>'+CRIT_HI+'+</b> / <b>'+CRIT_LO+'−</b> на кубах.' : '');
+      (s.crit ? ' Криты по итогу: <b>'+CRIT_HI+'+</b> / <b>'+CRIT_LO+'−</b>.' : '');
   },
   sub:function(a,s){
     return a.N+'d6 · '+(a.mode==='best'?'лучшие ':'худшие ')+a.K+
       (s.flat ? ' · '+sign(s.flat) : '')+' · цель '+s.target+'+';
   },
   atLeast:function(n, p){ return ' · хотя бы 1 из '+n+': '+p; },
+  fine:function(cs, dead, crit){
+    return 'Крит-успех <b>'+cs+'</b> · смерть цели <b>'+dead+'</b>' +
+      '<br>по вкладке «Ранение»' + (crit ? ' · крит = +1 кубик' : '');
+  },
   odds:function(x){ return '1 к '+x; },
   orMore:function(k){ return k+' и больше'; },
   sNote:function(avg, n){
@@ -616,7 +622,7 @@ en: {
   lbl_target:'Success threshold', hint_target:'base 7+',
   lbl_rolls:'Rolls in a row', hint_rolls:'series of attacks / tests',
   crit_t:'Crits decide the outcome',
-  crit_s:'counted dice total 12+ — automatic success, 2 or less — automatic failure (before the modifier)',
+  crit_s:'final total 12+ — automatic success, 2 or less — automatic failure (modifier included)',
   roll:'Roll the dice',
   st_cs:'Crit success', st_cf:'Crit failure', st_ev:'Average roll',
   acc_deltas:'What one more modifier gives', acc_series:'Series of rolls',
@@ -657,13 +663,17 @@ en: {
     return 'Rolling <b>'+a.N+'d6</b>, adding up the <b>'+a.K+' '+(a.mode==='best'?'highest':'lowest')+'</b>'+
       (s.flat!==0 ? ', then <b>'+sign(s.flat)+'</b> to the total' : '')+
       '. Success on <b>'+s.target+'+</b>.'+
-      (s.crit ? ' Crits: <b>'+CRIT_HI+'+</b> / <b>'+CRIT_LO+'−</b> on the dice.' : '');
+      (s.crit ? ' Crits on the final total: <b>'+CRIT_HI+'+</b> / <b>'+CRIT_LO+'−</b>.' : '');
   },
   sub:function(a,s){
     return a.N+'d6 · '+(a.mode==='best'?'best ':'worst ')+a.K+
       (s.flat ? ' · '+sign(s.flat) : '')+' · target '+s.target+'+';
   },
   atLeast:function(n, p){ return ' · at least 1 of '+n+': '+p; },
+  fine:function(cs, dead, crit){
+    return 'Crit success <b>'+cs+'</b> · target death <b>'+dead+'</b>' +
+      '<br>from the Injury tab' + (crit ? ' · crit = +1 die' : '');
+  },
   odds:function(x){ return '1 in '+x; },
   orMore:function(k){ return k+' or more'; },
   sNote:function(avg, n){
@@ -751,8 +761,8 @@ var FACT = [1];
 for(var i=1;i<=32;i++) FACT[i] = FACT[i-1]*i;
 function multinomial(n, c){ var r = FACT[n]; for(var f=0;f<6;f++) r /= FACT[c[f]]; return r; }
 
-var CRIT_HI = 12;   // сумма учтённых кубов >= 12 — крит-успех
-var CRIT_LO = 2;    // сумма учтённых кубов <= 2  — крит-провал
+var CRIT_HI = 12;   // итог (сумма учтённых кубов + модификатор) >= 12 — крит-успех
+var CRIT_LO = 2;    // итог <= 2 — крит-провал
 
 /* распределение суммы учтённых кубов; кэш по (N,K,mode) */
 var distCache = {};
@@ -795,7 +805,7 @@ function analyse(s){
 
   for(var i=0;i<keys.length;i++){
     var raw = keys[i], w = d.dist[raw], val = raw + s.flat;
-    var isCS = raw >= CRIT_HI, isCF = raw <= CRIT_LO;
+    var isCS = val >= CRIT_HI, isCF = val <= CRIT_LO;
     var ok;
     if(s.crit && isCS) ok = true;
     else if(s.crit && isCF) ok = false;
@@ -839,6 +849,20 @@ function analyseInjury(s){
   };
 }
 
+/* Шанс, что действие закончится смертью цели: успех → бросок на ранение
+   по настройкам вкладки «Ранение». Крит-успех даёт +1 кубик к этому броску,
+   поэтому крит-ветка и обычная ветка считаются раздельно.
+   Возвращает { pcs, pDeath, pDeadPlain, pDeadCrit }. */
+function deathChain(a, s, inj){
+  var plain = analyseInjury(inj).pDead;
+  if(!s.crit) return { pcs:a.pcs, pDeath:a.p * plain, pDeadPlain:plain, pDeadCrit:plain };
+  var s2 = Object.assign({}, inj);
+  s2.dice = clamp('dice', inj.dice + 1);
+  var crit = analyseInjury(s2).pDead;
+  var pNorm = Math.max(0, a.p - a.pcs);
+  return { pcs:a.pcs, pDeath:a.pcs * crit + pNorm * plain, pDeadPlain:plain, pDeadCrit:crit };
+}
+
 /* биномиальное распределение серии */
 function binomAtLeast(n, p){
   var out = [], k, c = 1, pk = [];
@@ -870,7 +894,8 @@ var $ = function(id){ return document.getElementById(id); };
 var el = {
   formula:$('formula'), chart:$('chart'), cum:$('t-cum'), deltas:$('t-deltas'),
   series:$('series-body'), pct:$('pct'), gauge:$('gauge'), metaTitle:$('meta-title'),
-  metaSub:$('meta-sub'), cs:$('s-cs'), cf:$('s-cf'), ev:$('s-ev'), crit:$('crit')
+  metaSub:$('meta-sub'), cs:$('s-cs'), cf:$('s-cf'), ev:$('s-ev'), crit:$('crit'),
+  fine:$('foot-fine')
 };
 
 function render(){
@@ -927,6 +952,9 @@ function renderAction(){
   var sub = D.sub(a, state);
   if(state.rolls > 1) sub += D.atLeast(state.rolls, pct1(binomAtLeast(state.rolls, a.p)[1]));
   el.metaSub.textContent = sub;
+
+  var dc = deathChain(a, state, app.injury);
+  el.fine.innerHTML = D.fine(pct(dc.pcs), pct(dc.pDeath), state.crit);
 }
 
 function renderInjury(){
@@ -1098,8 +1126,8 @@ function rollOnce(){
   var used = idx.slice(0, sh.K);
   var usedSet = {}; used.forEach(function(j){ usedSet[j] = true; });
   var raw = used.reduce(function(acc,j){ return acc + dice[j]; }, 0);
-  var isCS = state.crit && raw >= CRIT_HI, isCF = state.crit && raw <= CRIT_LO;
   var val = raw + state.flat;
+  var isCS = state.crit && val >= CRIT_HI, isCF = state.crit && val <= CRIT_LO;
   var ok = isCS ? true : (isCF ? false : val >= state.target);
   return { dice:dice, usedSet:usedSet, raw:raw, val:val, ok:ok, cs:isCS, cf:isCF };
 }

@@ -1,4 +1,4 @@
-const CACHE = 'tc-dice-v4';
+const CACHE = 'tc-dice-v5';
 const ASSETS = [
   './',
   './index.html',
