@@ -15,7 +15,7 @@
 :root{
   --bg:#12100e; --bg2:#1b1815; --card:#221e1a; --card2:#2b2621;
   --line:#3a332c; --text:#e8e0d4; --muted:#9a8f80; --dim:#6a6157;
-  --accent:#c8a24a; --good:#7fae5a; --bad:#b4514a; --radius:14px;
+  --accent:#c8a24a; --good:#7fae5a; --bad:#b4514a; --warn:#c9762f; --radius:14px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
@@ -35,6 +35,56 @@ h1 small{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-
 .hbtn:active{background:var(--card2)}
 .hbtn svg{width:22px;height:22px;fill:none;stroke:var(--text);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 
+/* шторка */
+.drawer{position:fixed;inset:0;z-index:60;visibility:hidden;opacity:0;transition:opacity .18s,visibility .18s}
+.drawer.on{visibility:visible;opacity:1}
+.drawer .scrim{position:absolute;inset:0;background:rgba(8,7,6,.72)}
+.drawer .panel{
+  position:absolute;left:0;top:0;bottom:0;width:min(330px,88vw);overflow-y:auto;
+  background:var(--bg2);border-right:1px solid var(--line);
+  padding:16px 14px calc(16px + env(safe-area-inset-bottom));
+  transform:translateX(-102%);transition:transform .22s ease;
+}
+.drawer.on .panel{transform:none}
+.drawer h3{margin:0 0 14px;font-size:15px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.drawer h3 .x{font-size:26px;color:var(--muted);line-height:1;padding:0 6px}
+.dsec{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin:16px 0 7px}
+.seg{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px}
+.seg button{flex:1 1 0;padding:10px 6px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--accent);color:#1b1510}
+.ditem{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;text-decoration:none;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px;color:inherit;
+}
+.ditem:active{background:var(--card2)}
+.ditem .di{width:34px;height:34px;border-radius:9px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.ditem .di svg{width:18px;height:18px;fill:none;stroke:var(--text);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ditem .di svg.solid{fill:var(--text);stroke:none}
+.ditem .dt{min-width:0;flex:1 1 auto}
+.ditem .dt b{display:block;font-size:14px;font-weight:600}
+.ditem .dt i{display:block;font-style:normal;font-size:11px;color:var(--muted);margin-top:1px}
+.ditem.danger .di svg{stroke:var(--bad)}
+.dver{font-size:11px;color:var(--dim);text-align:center;margin-top:16px}
+.dcredit{font-size:11px;line-height:1.5;color:var(--dim);text-align:center;margin-top:6px;padding-top:10px;border-top:1px solid var(--line)}
+
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%) translateY(8px);
+  bottom:calc(142px + env(safe-area-inset-bottom));z-index:80;
+  max-width:min(420px,92vw);background:var(--card2);border:1px solid var(--line);
+  border-radius:12px;padding:11px 14px;font-size:13px;text-align:center;
+  opacity:0;visibility:hidden;transition:opacity .18s,transform .18s,visibility .18s;
+}
+.toast.on{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+
+/* табы режимов */
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:12px}
+.tabs button{flex:1 1 0;padding:11px 6px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted)}
+.tabs button.on{background:var(--accent);color:#1b1510}
+
+/* показ по режиму */
+body[data-mode="action"] [data-only="injury"]{display:none}
+body[data-mode="injury"] [data-only="action"]{display:none}
+
 .controls{display:grid;grid-template-columns:1fr;gap:10px}
 @media(min-width:560px){.controls{grid-template-columns:1fr 1fr}}
 .ctl{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
@@ -50,6 +100,16 @@ h1 small{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-
 .stepper button:disabled{opacity:.28}
 .stepper .val{flex:1 1 auto;text-align:center;font-size:29px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent)}
 .stepper .val.neutral{color:var(--text)}
+
+/* сегмент брони */
+.picker{display:flex;gap:6px}
+.picker button{
+  flex:1 1 0;height:52px;border-radius:12px;background:var(--card2);border:1px solid var(--line);
+  font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text);
+  display:flex;align-items:center;justify-content:center;transition:background .12s,transform .06s;
+}
+.picker button:active{transform:scale(.94)}
+.picker button.on{background:var(--accent);border-color:var(--accent);color:#1b1510}
 
 .toggle{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-top:10px;cursor:pointer}
 .toggle input{width:22px;height:22px;accent-color:var(--accent);flex:0 0 auto;margin:1px 0 0}
@@ -89,6 +149,11 @@ details.acc[open]>summary{color:var(--text);border-bottom:1px solid var(--line)}
 .row .bar{height:100%;border-radius:5px;background:var(--bad)}
 .row.ok .bar{background:var(--good)}
 .row.ok .n{color:var(--text)}
+.row.o0 .bar{background:var(--dim)}
+.row.o1 .bar{background:var(--accent)}
+.row.o2 .bar{background:var(--warn)}
+.row.o3 .bar{background:var(--bad)}
+.row.o1 .n,.row.o2 .n,.row.o3 .n{color:var(--text)}
 .row .p{width:52px;text-align:right;font-size:12px;color:var(--muted);flex:0 0 auto}
 
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
@@ -113,6 +178,14 @@ tr.hl td{color:var(--accent);font-weight:700}
 .bottom .meta b{display:block;color:var(--text);font-size:13px;font-weight:600;margin-bottom:2px}
 .gauge{height:6px;background:#1a1714;border-radius:3px;overflow:hidden;margin-top:7px}
 .gauge i{display:block;height:100%;background:var(--good);width:0}
+.gauge4{display:flex;height:6px;background:#1a1714;border-radius:3px;overflow:hidden;margin-top:7px}
+.gauge4 i{display:block;height:100%;width:0}
+.gauge4 i.g0{background:var(--dim)}
+.gauge4 i.g1{background:var(--accent)}
+.gauge4 i.g2{background:var(--warn)}
+.gauge4 i.g3{background:var(--bad)}
+.sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:baseline}
+.sw.g0{background:var(--dim)}.sw.g1{background:var(--accent)}.sw.g2{background:var(--warn)}.sw.g3{background:var(--bad)}
 
 /* модалки */
 .modal{position:fixed;inset:0;z-index:50;display:none;align-items:flex-end;justify-content:center;background:rgba(8,7,6,.72)}
@@ -140,6 +213,7 @@ tr.hl td{color:var(--accent);font-weight:700}
 .rollcard .res{margin-top:8px;font-size:14px;font-variant-numeric:tabular-nums}
 .rollcard .res b.ok{color:var(--good)}
 .rollcard .res b.no{color:var(--bad)}
+.o0c{color:var(--dim)}.o1c{color:var(--accent)}.o2c{color:var(--warn)}.o3c{color:var(--bad)}
 .summary-line{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;font-size:16px;font-weight:700;margin-bottom:10px}
 .sheet .actions{display:flex;gap:8px;margin-top:4px}
 .sheet .actions button{flex:1 1 0;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:15px;font-weight:600}
@@ -162,43 +236,58 @@ footer{color:var(--dim);font-size:11px;text-align:center;padding:16px 0 4px}
 
 <div class="wrap">
   <header>
-    <h1>Калькулятор кубиков<small>Trench Crusade · 2d6</small></h1>
-    <button class="hbtn" id="btn-presets" title="Пресеты" aria-label="Пресеты">
+    <button class="hbtn" id="btn-menu" data-i18n-title="dr_title">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
+    </button>
+    <h1><span data-i18n="h1">Калькулятор кубиков</span><small data-i18n="h1sub">Trench Crusade · 2d6</small></h1>
+    <button class="hbtn" id="btn-presets" data-i18n-title="presets">
       <svg viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>
     </button>
-    <button class="hbtn" id="btn-reset" title="Сбросить" aria-label="Сбросить">
+    <button class="hbtn" id="btn-reset" data-i18n-title="reset">
       <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
     </button>
   </header>
 
+  <div class="tabs">
+    <button data-tab="action" data-i18n="tab_action">Действие</button>
+    <button data-tab="injury" data-i18n="tab_injury">Ранение</button>
+  </div>
+
   <div class="controls">
     <div class="ctl">
-      <div class="label">Кубики (±)</div><div class="hint">+ преимущество · − помеха</div>
+      <div class="label" data-i18n="lbl_dice">Кубики (±)</div><div class="hint" data-i18n="hint_dice">+ преимущество · − помеха</div>
       <div class="stepper"><button data-step="dice:-1">−</button><div class="val" id="v-dice">0</div><button data-step="dice:1">+</button></div>
     </div>
     <div class="ctl">
-      <div class="label">Модификатор к результату (±)</div><div class="hint">прибавляется к сумме кубов</div>
+      <div class="label" data-i18n="lbl_flat">Модификатор к результату (±)</div><div class="hint" data-i18n="hint_flat">прибавляется к сумме кубов</div>
       <div class="stepper"><button data-step="flat:-1">−</button><div class="val" id="v-flat">0</div><button data-step="flat:1">+</button></div>
     </div>
     <div class="ctl">
-      <div class="label">Кубик в сумму</div><div class="hint">даёт куб и место в сумме</div>
+      <div class="label" data-i18n="lbl_sum">Кубик в сумму</div><div class="hint" data-i18n="hint_sum">даёт куб и место в сумме</div>
       <div class="stepper"><button data-step="sum:-1">−</button><div class="val neutral" id="v-sum">0</div><button data-step="sum:1">+</button></div>
     </div>
-    <div class="ctl">
-      <div class="label">Порог успеха</div><div class="hint">базовый 7+</div>
+    <div class="ctl" data-only="action">
+      <div class="label" data-i18n="lbl_target">Порог успеха</div><div class="hint" data-i18n="hint_target">базовый 7+</div>
       <div class="stepper"><button data-step="target:-1">−</button><div class="val neutral" id="v-target">7</div><button data-step="target:1">+</button></div>
     </div>
+    <div class="ctl" data-only="injury">
+      <div class="label" data-i18n="lbl_armour">Броня цели</div><div class="hint" data-i18n="hint_armour">вычитается из итоговой суммы</div>
+      <div class="picker">
+        <button data-armour="0">0</button><button data-armour="1">1</button>
+        <button data-armour="2">2</button><button data-armour="3">3</button>
+      </div>
+    </div>
     <div class="ctl">
-      <div class="label">Бросков подряд</div><div class="hint">серия атак / проверок</div>
+      <div class="label" data-i18n="lbl_rolls">Бросков подряд</div><div class="hint" data-i18n="hint_rolls">серия атак / проверок</div>
       <div class="stepper"><button data-step="rolls:-1">−</button><div class="val neutral" id="v-rolls">1</div><button data-step="rolls:1">+</button></div>
     </div>
   </div>
 
-  <label class="toggle">
+  <label class="toggle" data-only="action">
     <input type="checkbox" id="crit" checked>
     <span>
-      <span class="t">Криты решают исход</span><br>
-      <span class="s">сумма учтённых кубов 12+ — автоуспех, 2 и меньше — автопровал (до модификатора)</span>
+      <span class="t" data-i18n="crit_t">Криты решают исход</span><br>
+      <span class="s" data-i18n="crit_s">сумма учтённых кубов 12+ — автоуспех, 2 и меньше — автопровал (до модификатора)</span>
     </span>
   </label>
 
@@ -206,32 +295,32 @@ footer{color:var(--dim);font-size:11px;text-align:center;padding:16px 0 4px}
   <button class="roll-btn" id="btn-roll">Бросить кубы</button>
 
   <div class="stats">
-    <div class="stat"><div class="k">Крит. успех</div><div class="v" id="s-cs">—</div></div>
-    <div class="stat"><div class="k">Крит. провал</div><div class="v" id="s-cf">—</div></div>
-    <div class="stat"><div class="k">Средний бросок</div><div class="v" id="s-ev">—</div></div>
+    <div class="stat"><div class="k" id="k-1">Крит. успех</div><div class="v" id="s-cs">—</div></div>
+    <div class="stat"><div class="k" id="k-2">Крит. провал</div><div class="v" id="s-cf">—</div></div>
+    <div class="stat"><div class="k" id="k-3">Средний бросок</div><div class="v" id="s-ev">—</div></div>
   </div>
 
   <details class="acc" data-acc="deltas" open>
-    <summary>Что даст ещё один модификатор</summary>
+    <summary><span data-i18n="acc_deltas">Что даст ещё один модификатор</span></summary>
     <div class="acc-body"><table id="t-deltas"></table></div>
   </details>
 
   <details class="acc" data-acc="series">
-    <summary>Серия бросков</summary>
+    <summary><span data-i18n="acc_series">Серия бросков</span></summary>
     <div class="acc-body"><div id="series-body"></div></div>
   </details>
 
   <details class="acc" data-acc="dist">
-    <summary>Распределение суммы</summary>
+    <summary><span data-i18n="acc_dist">Распределение суммы</span></summary>
     <div class="acc-body"><div id="chart"></div></div>
   </details>
 
   <details class="acc" data-acc="cum">
-    <summary>Шанс выбросить X или выше</summary>
+    <summary><span id="acc-cum-label">Шанс выбросить X или выше</span></summary>
     <div class="acc-body"><table id="t-cum"></table></div>
   </details>
 
-  <footer>Точный расчёт перебором всех исходов. Работает без интернета.</footer>
+  <footer data-i18n="footer">Точный расчёт перебором всех исходов. Работает без интернета.</footer>
 </div>
 
 <div class="bottom">
@@ -240,7 +329,10 @@ footer{color:var(--dim);font-size:11px;text-align:center;padding:16px 0 4px}
     <div class="meta">
       <b id="meta-title">Шанс успеха</b>
       <span id="meta-sub"></span>
-      <div class="gauge"><i id="gauge"></i></div>
+      <div class="gauge" data-only="action"><i id="gauge"></i></div>
+      <div class="gauge4" data-only="injury">
+        <i class="g0" id="g0"></i><i class="g1" id="g1"></i><i class="g2" id="g2"></i><i class="g3" id="g3"></i>
+      </div>
     </div>
   </div>
 </div>
@@ -248,11 +340,11 @@ footer{color:var(--dim);font-size:11px;text-align:center;padding:16px 0 4px}
 <!-- модалка броска -->
 <div class="modal" id="m-roll">
   <div class="sheet">
-    <h3><span>Бросок</span><button class="x" data-close="m-roll">×</button></h3>
+    <h3><span data-i18n="m_roll">Бросок</span><button class="x" data-close="m-roll">×</button></h3>
     <div id="roll-out"></div>
     <div class="actions">
-      <button class="primary" id="btn-reroll">Бросить ещё раз</button>
-      <button data-close="m-roll">Закрыть</button>
+      <button class="primary" id="btn-reroll" data-i18n="reroll">Бросить ещё раз</button>
+      <button data-close="m-roll" data-i18n="close">Закрыть</button>
     </div>
     <div class="hist" id="hist"></div>
   </div>
@@ -261,45 +353,398 @@ footer{color:var(--dim);font-size:11px;text-align:center;padding:16px 0 4px}
 <!-- модалка пресетов -->
 <div class="modal" id="m-presets">
   <div class="sheet">
-    <h3><span>Пресеты</span><button class="x" data-close="m-presets">×</button></h3>
+    <h3><span data-i18n="presets">Пресеты</span><button class="x" data-close="m-presets">×</button></h3>
     <div class="plist" id="plist"></div>
     <div class="actions">
-      <button class="primary" id="btn-save-preset">Сохранить текущий</button>
-      <button data-close="m-presets">Закрыть</button>
+      <button class="primary" id="btn-save-preset" data-i18n="p_save">Сохранить текущий</button>
+      <button data-close="m-presets" data-i18n="close">Закрыть</button>
     </div>
   </div>
 </div>
+
+<!-- шторка -->
+<div class="drawer" id="m-menu">
+  <div class="scrim" data-close="m-menu"></div>
+  <nav class="panel">
+    <h3><span data-i18n="dr_title">Меню</span><button class="x" data-close="m-menu">×</button></h3>
+
+    <div class="dsec" data-i18n="dr_lang">Язык приложения</div>
+    <div class="seg">
+      <button data-lang="ru">Русский</button>
+      <button data-lang="en">English</button>
+    </div>
+
+    <div class="dsec" data-i18n="dr_app">Приложение</div>
+    <button class="ditem" id="btn-update">
+      <span class="di"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></span>
+      <span class="dt"><b data-i18n="dr_upd">Проверить обновление</b><i data-i18n="dr_upd_s">есть ли новая версия</i></span>
+    </button>
+    <button class="ditem danger" id="btn-cache">
+      <span class="di"><svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6 7l1 13h10l1-13"/></svg></span>
+      <span class="dt"><b data-i18n="dr_cache">Сбросить кэш</b><i data-i18n="dr_cache_s">настройки и пресеты останутся</i></span>
+    </button>
+
+    <div class="dsec" data-i18n="dr_links">Ссылки</div>
+    <a class="ditem" href="https://t.me/Sheriff_Xlebywek" target="_blank" rel="noopener noreferrer">
+      <span class="di"><svg viewBox="0 0 24 24"><path d="M21 4l-3 16-6-5-3 3v-5l9-7-11 5-4-2z"/></svg></span>
+      <span class="dt"><b data-i18n="dr_tg">Контакт разработчика</b><i>@Sheriff_Xlebywek</i></span>
+    </a>
+    <a class="ditem" href="https://github.com/AndreyKopylkov/trench-crusade-dice" target="_blank" rel="noopener noreferrer">
+      <span class="di"><svg viewBox="0 0 24 24"><path class="solid" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85l-.01 2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2z" style="fill:var(--text);stroke:none"/></svg></span>
+      <span class="dt"><b>GitHub</b><i data-i18n="dr_gh_s">исходный код проекта</i></span>
+    </a>
+    <button class="ditem" id="btn-donate">
+      <span class="di"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9a3.9 3.9 0 0 1 7-2.5A3.9 3.9 0 0 1 19 11c0 4.6-7 9-7 9z"/></svg></span>
+      <span class="dt"><b data-i18n="dr_donate">Задонатить</b><i data-i18n="dr_donate_s" id="donate-sub">платформа ещё не выбрана</i></span>
+    </button>
+
+    <div class="dver" id="app-ver"></div>
+    <div class="dcredit">by Kopylkov Andrey [Xlebniy_Samurai]<br><span id="app-upd"></span></div>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 (function(){
 'use strict';
 
 /* ================= состояние ================= */
-var LIMITS = { dice:[-6,6], flat:[-10,10], sum:[0,4], target:[2,20], rolls:[1,10] };
-var DEF = { dice:0, flat:0, sum:0, target:7, rolls:1, crit:true };
-var K_STATE = 'tc-dice-state', K_PRESETS = 'tc-dice-presets', K_ACC = 'tc-dice-acc';
+var LIMITS = { dice:[-6,6], flat:[-10,10], sum:[0,4], target:[2,20], rolls:[1,10], armour:[0,3] };
+var FIELDS = {
+  action: ['dice','flat','sum','target','rolls'],
+  injury: ['dice','flat','sum','armour','rolls']
+};
+var DEF = {
+  action: { dice:0, flat:0, sum:0, target:7, rolls:1, crit:true },
+  injury: { dice:0, flat:0, sum:0, armour:0, rolls:1 }
+};
+var K_STATE = 'tc-dice-state', K_PRESETS = 'tc-dice-presets', K_ACC = 'tc-dice-acc', K_LANG = 'tc-dice-lang';
+var APP_VERSION = '1.2.0';
+var LAST_UPDATE = '2026-08-16';   // дата последнего коммита, обновлять вместе с релизом
+var DONATE_URL = '';              // пока платформа не выбрана
 
-var state = loadState();
+var app = loadState();
+var state = app[app.mode];      // ссылка на состояние активного режима
 var presets = loadPresets();
 var history = [];
 var lastRoll = null;
 
 function clamp(key, v){ var l = LIMITS[key]; return Math.max(l[0], Math.min(l[1], Math.round(v))); }
-function sanitize(s){
-  var out = { crit: typeof s.crit === 'boolean' ? s.crit : DEF.crit };
-  for(var k in LIMITS) out[k] = typeof s[k] === 'number' ? clamp(k, s[k]) : DEF[k];
+
+/* приводит объект к набору полей конкретного режима; чужие ключи отбрасываются */
+function sanitize(s, mode){
+  s = s || {};
+  var f = FIELDS[mode], out = {}, i, k;
+  for(i=0;i<f.length;i++){
+    k = f[i];
+    out[k] = typeof s[k] === 'number' ? clamp(k, s[k]) : DEF[mode][k];
+  }
+  if(mode === 'action') out.crit = typeof s.crit === 'boolean' ? s.crit : DEF.action.crit;
   return out;
 }
 function loadState(){
-  try{ var r = localStorage.getItem(K_STATE); return r ? sanitize(JSON.parse(r)) : Object.assign({}, DEF); }
-  catch(e){ return Object.assign({}, DEF); }
+  var raw = null;
+  try{ raw = JSON.parse(localStorage.getItem(K_STATE) || 'null'); }catch(e){}
+  var a = { mode:'action', action:sanitize(null,'action'), injury:sanitize(null,'injury') };
+  if(raw && typeof raw === 'object'){
+    if(raw.action || raw.injury){
+      a.mode = raw.mode === 'injury' ? 'injury' : 'action';
+      a.action = sanitize(raw.action, 'action');
+      a.injury = sanitize(raw.injury, 'injury');
+    }else{
+      a.action = sanitize(raw, 'action');   // миграция старого плоского формата
+    }
+  }
+  return a;
 }
-function saveState(){ try{ localStorage.setItem(K_STATE, JSON.stringify(state)); }catch(e){} }
+function saveState(){ try{ localStorage.setItem(K_STATE, JSON.stringify(app)); }catch(e){} }
+function setMode(m){
+  if(m !== 'action' && m !== 'injury') return;
+  app.mode = m;
+  state = app[m];
+}
 function loadPresets(){
   try{ var r = JSON.parse(localStorage.getItem(K_PRESETS) || '[]'); return Array.isArray(r) ? r : []; }
   catch(e){ return []; }
 }
 function savePresets(){ try{ localStorage.setItem(K_PRESETS, JSON.stringify(presets)); }catch(e){} }
+
+/* ================= язык ================= */
+function loadLang(){
+  var v = null;
+  try{ v = localStorage.getItem(K_LANG); }catch(e){}
+  if(v === 'ru' || v === 'en') return v;
+  var nav = (navigator.language || 'ru').toLowerCase();
+  return nav.indexOf('ru') === 0 ? 'ru' : 'en';
+}
+var lang = loadLang();
+var D;   // активный словарь, ставится в setLang()
+
+function setLang(v){
+  if(v !== 'ru' && v !== 'en') return;
+  lang = v;
+  D = I18N[lang];
+  try{ localStorage.setItem(K_LANG, lang); }catch(e){}
+}
+
+var I18N = {
+ru: {
+  appTitle:'Trench Crusade — Калькулятор кубиков',
+  h1:'Калькулятор кубиков', h1sub:'Trench Crusade · 2d6',
+  presets:'Пресеты', reset:'Сбросить', close:'Закрыть',
+  lbl_dice:'Кубики (±)', hint_dice:'+ преимущество · − помеха',
+  lbl_flat:'Модификатор к результату (±)', hint_flat:'прибавляется к сумме кубов',
+  lbl_sum:'Кубик в сумму', hint_sum:'даёт куб и место в сумме',
+  lbl_target:'Порог успеха', hint_target:'базовый 7+',
+  lbl_rolls:'Бросков подряд', hint_rolls:'серия атак / проверок',
+  crit_t:'Криты решают исход',
+  crit_s:'сумма учтённых кубов 12+ — автоуспех, 2 и меньше — автопровал (до модификатора)',
+  roll:'Бросить кубы',
+  st_cs:'Крит. успех', st_cf:'Крит. провал', st_ev:'Средний бросок',
+  acc_deltas:'Что даст ещё один модификатор', acc_series:'Серия бросков',
+  acc_dist:'Распределение суммы', acc_cum:'Шанс выбросить X или выше',
+  footer:'Точный расчёт перебором всех исходов. Работает без интернета.',
+  chance:'Шанс успеха', chance1:'Шанс успеха одного броска',
+  best:'лучших', worst:'худших', bestS:'лучшие', worstS:'худшие', goal:'цель',
+  ppUnit:' п.п.',
+  th_mod:'Модификатор', th_becomes:'Станет', th_diff:'Разница',
+  d_dice_p:'+1 кубик к броску', d_dice_m:'−1 кубик к броску',
+  d_flat_p:'+1 к результату', d_flat_m:'−1 к результату', d_sum_p:'+1 кубик в сумму',
+  limits:'Пределы достигнуты',
+  th_thr:'Порог', th_chance:'Шанс', th_odds:'Против',
+  th_succ:'Успехов',
+  s_empty:'Поставь «Бросков подряд» больше 1 — появится расчёт серии.',
+  m_roll:'Бросок', reroll:'Бросить ещё раз', lastrolls:'Последние броски',
+  dice_w:'Кубы', crit_succ:'КРИТ. УСПЕХ', crit_fail:'КРИТ. ПРОВАЛ',
+  counted:'Сумма учтённых:', SUCC:'УСПЕХ', FAIL:'ПРОВАЛ',
+  succWord:'успех', failWord:'провал', succShort:'усп.',
+  p_save:'Сохранить текущий',
+  p_empty:'Пресетов пока нет. Настрой бросок и нажми «Сохранить текущий».',
+  p_rename:'Переименовать', p_del:'Удалить',
+  p_rename_q:'Новое имя пресета:', p_name_q:'Название пресета:',
+  dr_title:'Меню', dr_lang:'Язык приложения', dr_app:'Приложение', dr_links:'Ссылки',
+  dr_upd:'Проверить обновление', dr_upd_s:'есть ли новая версия',
+  dr_cache:'Сбросить кэш', dr_cache_s:'настройки и пресеты останутся',
+  dr_cache_q:'Удалить офлайн-кэш и перезагрузить приложение?\n\nНастройки, пресеты и язык сохранятся.',
+  dr_tg:'Контакт разработчика', dr_gh_s:'исходный код проекта',
+  dr_donate:'Задонатить', dr_donate_s:'платформа ещё не выбрана',
+  t_upd_none:'Обновлений нет — установлена последняя версия.',
+  t_upd_found:'Найдена новая версия, перезагружаю…',
+  t_upd_fail:'Не удалось проверить — нет сети.',
+  t_upd_nosw:'Проверка доступна только на сайте, не в локальном файле.',
+  t_cache_done:'Кэш очищен, перезагружаю…',
+  t_donate:'Платформа для донатов ещё не выбрана — напиши в Telegram.',
+  ver:'Версия', upd:'Обновлено',
+  formula:function(a,s){
+    return 'Бросаем <b>'+a.N+'d6</b>, суммируем <b>'+a.K+' '+(a.mode==='best'?'лучших':'худших')+'</b>'+
+      (s.flat!==0 ? ', затем <b>'+sign(s.flat)+'</b> к сумме' : '')+
+      '. Успех при <b>'+s.target+'+</b>.'+
+      (s.crit ? ' Криты: <b>'+CRIT_HI+'+</b> / <b>'+CRIT_LO+'−</b> на кубах.' : '');
+  },
+  sub:function(a,s){
+    return a.N+'d6 · '+(a.mode==='best'?'лучшие ':'худшие ')+a.K+
+      (s.flat ? ' · '+sign(s.flat) : '')+' · цель '+s.target+'+';
+  },
+  atLeast:function(n, p){ return ' · хотя бы 1 из '+n+': '+p; },
+  odds:function(x){ return '1 к '+x; },
+  orMore:function(k){ return k+' и больше'; },
+  sNote:function(avg, n){
+    return 'Среднее число успехов: <b>'+avg+'</b> из '+n+'. Броски считаются независимыми.';
+  },
+  succOf:function(w, n){ return 'Успехов: '+w+' из '+n; },
+  rollN:function(i){ return 'Бросок '+i; },
+  delQ:function(nm){ return 'Удалить пресет «'+nm+'»?'; },
+  describe:function(sh, s){
+    return sh.N+'d6, '+(sh.mode==='best'?'лучшие ':'худшие ')+sh.K+
+      (s.flat ? ', '+sign(s.flat) : '')+', цель '+s.target+'+'+(s.rolls>1 ? ', ×'+s.rolls : '');
+  },
+
+  /* ---- ранения ---- */
+  tab_action:'Действие', tab_injury:'Ранение',
+  lbl_armour:'Броня цели', hint_armour:'вычитается из итоговой суммы',
+  roll_inj:'Бросить на ранение',
+  inj:['Ничего','Маркер крови','Кровь + падение','Смерть'],
+  injShort:['Ничего','Кровь','Кровь + падение','Смерть'],
+  injUp:['НИЧЕГО','МАРКЕР КРОВИ','КРОВЬ + ПАДЕНИЕ','СМЕРТЬ'],
+  chanceDead:'Шанс смерти', chanceDead1:'Шанс смерти в одном броске',
+  acc_table:'Таблица ранений',
+  th_range:'Итог', th_out:'Исход',
+  th_dDead:'Δ смерти', th_dAny:'Δ эффекта',
+  th_deaths:'Смертей',
+  d_arm_p:'+1 брони цели', d_arm_m:'−1 брони цели',
+  armWord:'броня', armOf:'брони',
+  tagAction:'Действие', tagInjury:'Ранение',
+  formulaInj:function(a,s){
+    return 'Бросаем <b>'+a.N+'d6</b>, суммируем <b>'+a.K+' '+(a.mode==='best'?'лучших':'худших')+'</b>'+
+      (s.flat!==0 ? ', затем <b>'+sign(s.flat)+'</b> к сумме' : '')+
+      (s.armour ? ', минус <b>'+s.armour+'</b> брони' : '')+
+      '. Исход по таблице ранений.';
+  },
+  subInj:function(a,s){
+    return a.N+'d6 · '+(a.mode==='best'?'лучшие ':'худшие ')+a.K+
+      (s.flat ? ' · '+sign(s.flat) : '')+' · броня '+s.armour;
+  },
+  injAtLeast:function(n, p){ return ' · хотя бы 1 смерть из '+n+': '+p; },
+  injOrMore:function(k){ return k+' и больше'; },
+  injNote:function(avg, n, any){
+    return 'Среднее число смертей: <b>'+avg+'</b> из '+n+'. Хотя бы один эффект хоть раз: <b>'+any+
+      '</b>. Броски считаются независимыми.';
+  },
+  injSummary:function(c){
+    return 'Смертей '+c[3]+' · кровь+падение '+c[2]+' · кровь '+c[1]+' · ничего '+c[0];
+  },
+  injRes:function(raw, flat, arm, val){
+    var t = 'Сумма учтённых: <b>'+raw+'</b>';
+    if(flat) t += ' '+sign(flat);
+    if(arm) t += ' −'+arm+' брони';
+    if(flat || arm) t += ' = <b>'+val+'</b>';
+    return t;
+  },
+  describeInj:function(sh, s){
+    return sh.N+'d6, '+(sh.mode==='best'?'лучшие ':'худшие ')+sh.K+
+      (s.flat ? ', '+sign(s.flat) : '')+', броня '+s.armour+(s.rolls>1 ? ', ×'+s.rolls : '');
+  }
+},
+en: {
+  appTitle:'Trench Crusade — Dice Calculator',
+  h1:'Dice Calculator', h1sub:'Trench Crusade · 2d6',
+  presets:'Presets', reset:'Reset', close:'Close',
+  lbl_dice:'Dice (±)', hint_dice:'+ advantage · − disadvantage',
+  lbl_flat:'Result modifier (±)', hint_flat:'added to the dice total',
+  lbl_sum:'Extra die into the total', hint_sum:'adds a die and a slot in the total',
+  lbl_target:'Success threshold', hint_target:'base 7+',
+  lbl_rolls:'Rolls in a row', hint_rolls:'series of attacks / tests',
+  crit_t:'Crits decide the outcome',
+  crit_s:'counted dice total 12+ — automatic success, 2 or less — automatic failure (before the modifier)',
+  roll:'Roll the dice',
+  st_cs:'Crit success', st_cf:'Crit failure', st_ev:'Average roll',
+  acc_deltas:'What one more modifier gives', acc_series:'Series of rolls',
+  acc_dist:'Total distribution', acc_cum:'Chance to roll X or higher',
+  footer:'Exact math over every outcome. Works offline.',
+  chance:'Success chance', chance1:'Success chance of one roll',
+  best:'highest', worst:'lowest', bestS:'best', worstS:'worst', goal:'target',
+  ppUnit:' pp',
+  th_mod:'Modifier', th_becomes:'Becomes', th_diff:'Difference',
+  d_dice_p:'+1 die to the roll', d_dice_m:'−1 die to the roll',
+  d_flat_p:'+1 to the result', d_flat_m:'−1 to the result', d_sum_p:'+1 die into the total',
+  limits:'Limits reached',
+  th_thr:'Threshold', th_chance:'Chance', th_odds:'Odds',
+  th_succ:'Successes',
+  s_empty:'Set “Rolls in a row” above 1 to get the series math.',
+  m_roll:'Roll', reroll:'Roll again', lastrolls:'Recent rolls',
+  dice_w:'Dice', crit_succ:'CRIT SUCCESS', crit_fail:'CRIT FAILURE',
+  counted:'Counted total:', SUCC:'SUCCESS', FAIL:'FAILURE',
+  succWord:'success', failWord:'failure', succShort:'succ.',
+  p_save:'Save current',
+  p_empty:'No presets yet. Set up a roll and press “Save current”.',
+  p_rename:'Rename', p_del:'Delete',
+  p_rename_q:'New preset name:', p_name_q:'Preset name:',
+  dr_title:'Menu', dr_lang:'App language', dr_app:'Application', dr_links:'Links',
+  dr_upd:'Check for updates', dr_upd_s:'see if a newer version exists',
+  dr_cache:'Clear cache', dr_cache_s:'settings and presets are kept',
+  dr_cache_q:'Delete the offline cache and reload the app?\n\nSettings, presets and language will be kept.',
+  dr_tg:'Developer contact', dr_gh_s:'project source code',
+  dr_donate:'Donate', dr_donate_s:'platform not chosen yet',
+  t_upd_none:'No updates — you are on the latest version.',
+  t_upd_found:'New version found, reloading…',
+  t_upd_fail:'Check failed — no connection.',
+  t_upd_nosw:'Updates can only be checked on the site, not from a local file.',
+  t_cache_done:'Cache cleared, reloading…',
+  t_donate:'No donation platform yet — ping me on Telegram.',
+  ver:'Version', upd:'Updated',
+  formula:function(a,s){
+    return 'Rolling <b>'+a.N+'d6</b>, adding up the <b>'+a.K+' '+(a.mode==='best'?'highest':'lowest')+'</b>'+
+      (s.flat!==0 ? ', then <b>'+sign(s.flat)+'</b> to the total' : '')+
+      '. Success on <b>'+s.target+'+</b>.'+
+      (s.crit ? ' Crits: <b>'+CRIT_HI+'+</b> / <b>'+CRIT_LO+'−</b> on the dice.' : '');
+  },
+  sub:function(a,s){
+    return a.N+'d6 · '+(a.mode==='best'?'best ':'worst ')+a.K+
+      (s.flat ? ' · '+sign(s.flat) : '')+' · target '+s.target+'+';
+  },
+  atLeast:function(n, p){ return ' · at least 1 of '+n+': '+p; },
+  odds:function(x){ return '1 in '+x; },
+  orMore:function(k){ return k+' or more'; },
+  sNote:function(avg, n){
+    return 'Average successes: <b>'+avg+'</b> of '+n+'. Rolls are treated as independent.';
+  },
+  succOf:function(w, n){ return 'Successes: '+w+' of '+n; },
+  rollN:function(i){ return 'Roll '+i; },
+  delQ:function(nm){ return 'Delete preset “'+nm+'”?'; },
+  describe:function(sh, s){
+    return sh.N+'d6, '+(sh.mode==='best'?'best ':'worst ')+sh.K+
+      (s.flat ? ', '+sign(s.flat) : '')+', target '+s.target+'+'+(s.rolls>1 ? ', ×'+s.rolls : '');
+  },
+
+  /* ---- injury ---- */
+  tab_action:'Action', tab_injury:'Injury',
+  lbl_armour:'Target armour', hint_armour:'subtracted from the final total',
+  roll_inj:'Roll for injury',
+  inj:['No Effect','Blood Marker','Blood Marker + Prone','Death'],
+  injShort:['No Effect','Blood','Blood + Prone','Death'],
+  injUp:['NO EFFECT','BLOOD MARKER','BLOOD MARKER + PRONE','DEATH'],
+  chanceDead:'Death chance', chanceDead1:'Death chance of one roll',
+  acc_table:'Injury table',
+  th_range:'Total', th_out:'Outcome',
+  th_dDead:'Δ death', th_dAny:'Δ effect',
+  th_deaths:'Deaths',
+  d_arm_p:'+1 target armour', d_arm_m:'−1 target armour',
+  armWord:'armour', armOf:'armour',
+  tagAction:'Action', tagInjury:'Injury',
+  formulaInj:function(a,s){
+    return 'Rolling <b>'+a.N+'d6</b>, adding up the <b>'+a.K+' '+(a.mode==='best'?'highest':'lowest')+'</b>'+
+      (s.flat!==0 ? ', then <b>'+sign(s.flat)+'</b> to the total' : '')+
+      (s.armour ? ', minus <b>'+s.armour+'</b> armour' : '')+
+      '. Outcome from the injury table.';
+  },
+  subInj:function(a,s){
+    return a.N+'d6 · '+(a.mode==='best'?'best ':'worst ')+a.K+
+      (s.flat ? ' · '+sign(s.flat) : '')+' · armour '+s.armour;
+  },
+  injAtLeast:function(n, p){ return ' · at least 1 death of '+n+': '+p; },
+  injOrMore:function(k){ return k+' or more'; },
+  injNote:function(avg, n, any){
+    return 'Average deaths: <b>'+avg+'</b> of '+n+'. At least one effect at least once: <b>'+any+
+      '</b>. Rolls are treated as independent.';
+  },
+  injSummary:function(c){
+    return 'Deaths '+c[3]+' · blood+prone '+c[2]+' · blood '+c[1]+' · nothing '+c[0];
+  },
+  injRes:function(raw, flat, arm, val){
+    var t = 'Counted total: <b>'+raw+'</b>';
+    if(flat) t += ' '+sign(flat);
+    if(arm) t += ' −'+arm+' armour';
+    if(flat || arm) t += ' = <b>'+val+'</b>';
+    return t;
+  },
+  describeInj:function(sh, s){
+    return sh.N+'d6, '+(sh.mode==='best'?'best ':'worst ')+sh.K+
+      (s.flat ? ', '+sign(s.flat) : '')+', armour '+s.armour+(s.rolls>1 ? ', ×'+s.rolls : '');
+  }
+}
+};
+D = I18N[lang];
+
+function applyStatic(){
+  document.documentElement.lang = lang;
+  document.title = D.appTitle;
+  var i, ns = document.querySelectorAll('[data-i18n]');
+  for(i=0;i<ns.length;i++){
+    var k = ns[i].getAttribute('data-i18n');
+    if(typeof D[k] === 'string') ns[i].textContent = D[k];
+  }
+  var ts = document.querySelectorAll('[data-i18n-title]');
+  for(i=0;i<ts.length;i++){
+    var k2 = ts[i].getAttribute('data-i18n-title');
+    if(typeof D[k2] === 'string'){ ts[i].title = D[k2]; ts[i].setAttribute('aria-label', D[k2]); }
+  }
+  var sg = document.querySelectorAll('[data-lang]');
+  for(i=0;i<sg.length;i++) sg[i].className = sg[i].getAttribute('data-lang') === lang ? 'on' : '';
+  $('app-ver').textContent = D.ver + ' ' + APP_VERSION;
+  $('app-upd').textContent = D.upd + ': ' + LAST_UPDATE;
+  $('donate-sub').textContent = DONATE_URL ? DONATE_URL.replace(/^https?:\/\//,'') : D.dr_donate_s;
+}
 
 /* ================= математика ================= */
 var FACT = [1];
@@ -368,6 +813,32 @@ function analyse(s){
   };
 }
 
+/* ---- ранения ----
+   итог = сумма учтённых кубов + модификатор − броня, затем кламп в корзину:
+   ≤1 ничего · 2–6 маркер крови · 7–8 кровь и падение · ≥9 смерть. Критов нет. */
+var INJ_RANGES = ['≤1', '2–6', '7–8', '9+'];
+function injuryBucket(v){ return v <= 1 ? 0 : (v <= 6 ? 1 : (v <= 8 ? 2 : 3)); }
+
+function analyseInjury(s){
+  var sh = shape(s);
+  var d = diceDist(sh.N, sh.K, sh.mode);
+  var keys = Object.keys(d.dist).map(Number).sort(function(a,b){return a-b;});
+  var rows = [], w4 = [0,0,0,0], ev = 0, i;
+
+  for(i=0;i<keys.length;i++){
+    var raw = keys[i], w = d.dist[raw], val = raw + s.flat - s.armour;
+    var b = injuryBucket(val);
+    w4[b] += w;
+    ev += val * w;
+    rows.push({ raw:raw, val:val, w:w, b:b });
+  }
+  var p = [w4[0]/d.total, w4[1]/d.total, w4[2]/d.total, w4[3]/d.total];
+  return {
+    N:sh.N, K:sh.K, mode:sh.mode, rows:rows, total:d.total,
+    p:p, pDead:p[3], pAny:1 - p[0], ev:ev/d.total
+  };
+}
+
 /* биномиальное распределение серии */
 function binomAtLeast(n, p){
   var out = [], k, c = 1, pk = [];
@@ -381,13 +852,14 @@ function binomAtLeast(n, p){
 }
 
 /* ================= форматирование ================= */
-function pct(x){ return (x*100).toFixed(2).replace('.', ',') + '%'; }
-function pct1(x){ return (x*100).toFixed(1).replace('.', ',') + '%'; }
-function num(x){ return x.toFixed(2).replace('.', ','); }
+function dec(s){ return lang === 'ru' ? s.replace('.', ',') : s; }
+function pct(x){ return dec((x*100).toFixed(2)) + '%'; }
+function pct1(x){ return dec((x*100).toFixed(1)) + '%'; }
+function num(x){ return dec(x.toFixed(2)); }
 function sign(n){ return n > 0 ? '+' + n : String(n); }
 function pp(d){
   var v = (d*100);
-  var t = (v>0?'+':(v<0?'−':'')) + Math.abs(v).toFixed(2).replace('.', ',') + ' п.п.';
+  var t = (v>0?'+':(v<0?'−':'')) + dec(Math.abs(v).toFixed(2)) + D.ppUnit;
   return '<span class="delta ' + (v>0.0049?'up':(v<-0.0049?'down':'zero')) + '">' + t + '</span>';
 }
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
@@ -402,7 +874,19 @@ var el = {
 };
 
 function render(){
-  ['dice','flat','sum','target','rolls'].forEach(function(k){
+  applyStatic();
+  var inj = app.mode === 'injury';
+  document.body.setAttribute('data-mode', app.mode);
+
+  var tabs = document.querySelectorAll('[data-tab]'), i;
+  for(i=0;i<tabs.length;i++) tabs[i].className = tabs[i].getAttribute('data-tab') === app.mode ? 'on' : '';
+
+  FIELDS[app.mode].forEach(function(k){
+    if(k === 'armour'){
+      var bs = document.querySelectorAll('[data-armour]');
+      for(var j=0;j<bs.length;j++) bs[j].className = (+bs[j].getAttribute('data-armour') === state.armour) ? 'on' : '';
+      return;
+    }
     var n = $('v-'+k), v = state[k];
     n.textContent = (k==='dice'||k==='flat') ? sign(v) : (k==='target' ? v+'+' : (k==='sum' && v>0 ? '+'+v : v));
     n.className = 'val' + ((k==='dice'||k==='flat'||k==='sum') && v!==0 ? '' : ' neutral');
@@ -410,22 +894,26 @@ function render(){
     document.querySelector('[data-step="'+k+':-1"]').disabled = v <= lo;
     document.querySelector('[data-step="'+k+':1"]').disabled = v >= hi;
   });
-  el.crit.checked = state.crit;
+  $('btn-roll').textContent = inj ? D.roll_inj : D.roll;
+  $('acc-cum-label').textContent = inj ? D.acc_table : D.acc_cum;
 
+  if(inj) renderInjury(); else renderAction();
+  saveState();
+}
+
+function renderAction(){
+  el.crit.checked = state.crit;
   var a = analyse(state);
 
-  el.formula.innerHTML =
-    'Бросаем <b>' + a.N + 'd6</b>, суммируем <b>' + a.K + ' ' +
-    (a.mode === 'best' ? 'лучших' : 'худших') + '</b>' +
-    (state.flat !== 0 ? ', затем <b>' + sign(state.flat) + '</b> к сумме' : '') +
-    '. Успех при <b>' + state.target + '+</b>.' +
-    (state.crit ? ' Криты: <b>' + CRIT_HI + '+</b> / <b>' + CRIT_LO + '−</b> на кубах.' : '');
-
+  el.formula.innerHTML = D.formula(a, state);
   renderChart(a);
   renderCum(a);
   renderDeltas(a);
   renderSeries(a);
 
+  $('k-1').textContent = D.st_cs;
+  $('k-2').textContent = D.st_cf;
+  $('k-3').textContent = D.st_ev;
   el.cs.textContent = pct(a.pcs);
   el.cf.textContent = pct(a.pcf);
   el.ev.textContent = num(a.ev);
@@ -435,16 +923,36 @@ function render(){
   el.pct.style.color = col;
   el.gauge.style.width = (a.p*100).toFixed(2) + '%';
   el.gauge.style.background = col;
-  el.metaTitle.textContent = state.rolls > 1 ? 'Шанс успеха одного броска' : 'Шанс успеха';
-  var sub = a.N + 'd6 · ' + (a.mode==='best'?'лучшие ':'худшие ') + a.K +
-            (state.flat ? ' · ' + sign(state.flat) : '') + ' · цель ' + state.target + '+';
-  if(state.rolls > 1){
-    var b = binomAtLeast(state.rolls, a.p);
-    sub += ' · хотя бы 1 из ' + state.rolls + ': ' + pct1(b[1]);
-  }
+  el.metaTitle.textContent = state.rolls > 1 ? D.chance1 : D.chance;
+  var sub = D.sub(a, state);
+  if(state.rolls > 1) sub += D.atLeast(state.rolls, pct1(binomAtLeast(state.rolls, a.p)[1]));
   el.metaSub.textContent = sub;
+}
 
-  saveState();
+function renderInjury(){
+  var a = analyseInjury(state);
+
+  el.formula.innerHTML = D.formulaInj(a, state);
+  renderChartInj(a);
+  renderInjTable(a);
+  renderDeltasInj(a);
+  renderSeriesInj(a);
+
+  $('k-1').textContent = D.injShort[0];
+  $('k-2').textContent = D.injShort[1];
+  $('k-3').textContent = D.injShort[2];
+  el.cs.textContent = pct(a.p[0]);
+  el.cf.textContent = pct(a.p[1]);
+  el.ev.textContent = pct(a.p[2]);
+
+  el.pct.textContent = pct(a.pDead);
+  el.pct.style.color = 'var(--bad)';
+  for(var b=0;b<4;b++) $('g'+b).style.width = (a.p[b]*100).toFixed(2) + '%';
+
+  el.metaTitle.textContent = state.rolls > 1 ? D.chanceDead1 : D.chanceDead;
+  var sub = D.subInj(a, state);
+  if(state.rolls > 1) sub += D.injAtLeast(state.rolls, pct1(binomAtLeast(state.rolls, a.pDead)[1]));
+  el.metaSub.textContent = sub;
 }
 
 function renderChart(a){
@@ -460,13 +968,75 @@ function renderChart(a){
   el.chart.innerHTML = h;
 }
 
+function renderChartInj(a){
+  var max = 0, i;
+  for(i=0;i<a.rows.length;i++) if(a.rows[i].w > max) max = a.rows[i].w;
+  var h = '';
+  for(i=0;i<a.rows.length;i++){
+    var r = a.rows[i];
+    h += '<div class="row o' + r.b + '"><div class="n">' + r.val + '</div>' +
+         '<div class="barwrap"><div class="bar" style="width:' + (r.w/max*100).toFixed(2) + '%"></div></div>' +
+         '<div class="p">' + pct1(r.w/a.total) + '</div></div>';
+  }
+  el.chart.innerHTML = h;
+}
+
+function renderInjTable(a){
+  var t = '<tr><th>'+D.th_range+'</th><th>'+D.th_out+'</th><th>'+D.th_chance+'</th></tr>';
+  for(var b=0;b<4;b++){
+    t += '<tr><td>' + INJ_RANGES[b] + '</td><td><span class="sw g' + b + '"></span>' +
+         D.inj[b] + '</td><td>' + pct(a.p[b]) + '</td></tr>';
+  }
+  el.cum.innerHTML = t;
+}
+
+function renderDeltasInj(a){
+  var opts = [
+    ['dice',    1, D.d_dice_p],
+    ['dice',   -1, D.d_dice_m],
+    ['flat',    1, D.d_flat_p],
+    ['flat',   -1, D.d_flat_m],
+    ['sum',     1, D.d_sum_p],
+    ['armour',  1, D.d_arm_p],
+    ['armour', -1, D.d_arm_m]
+  ];
+  var t = '<tr><th>'+D.th_mod+'</th><th>'+D.th_dDead+'</th><th>'+D.th_dAny+'</th></tr>';
+  var any = false;
+  for(var i=0;i<opts.length;i++){
+    var key = opts[i][0], nv = state[key] + opts[i][1];
+    if(nv < LIMITS[key][0] || nv > LIMITS[key][1]) continue;
+    var s2 = Object.assign({}, state); s2[key] = nv;
+    var a2 = analyseInjury(s2);
+    any = true;
+    t += '<tr><td>' + opts[i][2] + '</td><td>' + pp(a2.pDead - a.pDead) +
+         '</td><td>' + pp(a2.pAny - a.pAny) + '</td></tr>';
+  }
+  el.deltas.innerHTML = any ? t : '<tr><td class="empty">' + D.limits + '</td></tr>';
+}
+
+function renderSeriesInj(a){
+  if(state.rolls < 2){
+    el.series.innerHTML = '<div class="empty">' + D.s_empty + '</div>';
+    return;
+  }
+  var b = binomAtLeast(state.rolls, a.pDead);
+  var t = '<table><tr><th>'+D.th_deaths+'</th><th>'+D.th_chance+'</th></tr>';
+  for(var k=1;k<=state.rolls;k++){
+    t += '<tr' + (k===1?' class="hl"':'') + '><td>' + D.injOrMore(k) + '</td><td>' + pct(b[k]) + '</td></tr>';
+  }
+  t += '</table><div class="note">' +
+       D.injNote(num(state.rolls * a.pDead), state.rolls, pct(binomAtLeast(state.rolls, a.pAny)[1])) +
+       '</div>';
+  el.series.innerHTML = t;
+}
+
 function renderCum(a){
-  var t = '<tr><th>Порог</th><th>Шанс</th><th>Против</th></tr>', run = 0, i;
+  var t = '<tr><th>'+D.th_thr+'</th><th>'+D.th_chance+'</th><th>'+D.th_odds+'</th></tr>', run = 0, i;
   var rows = [];
   for(i=a.rows.length-1;i>=0;i--){ run += a.rows[i].w; rows.push({ val:a.rows[i].val, p:run/a.total }); }
   for(i=0;i<rows.length;i++){
     var c = rows[i];
-    var odds = (c.p >= 1 || c.p <= 0) ? '—' : '1 к ' + num(1/c.p);
+    var odds = (c.p >= 1 || c.p <= 0) ? '—' : D.odds(num(1/c.p));
     t += '<tr' + (c.val === state.target ? ' class="hl"' : '') + '><td>' + c.val + '+</td><td>' +
          pct(c.p) + '</td><td>' + odds + '</td></tr>';
   }
@@ -475,13 +1045,13 @@ function renderCum(a){
 
 function renderDeltas(a){
   var opts = [
-    ['dice',  1, '+1 кубик к броску'],
-    ['dice', -1, '−1 кубик к броску'],
-    ['flat',  1, '+1 к результату'],
-    ['flat', -1, '−1 к результату'],
-    ['sum',   1, '+1 кубик в сумму']
+    ['dice',  1, D.d_dice_p],
+    ['dice', -1, D.d_dice_m],
+    ['flat',  1, D.d_flat_p],
+    ['flat', -1, D.d_flat_m],
+    ['sum',   1, D.d_sum_p]
   ];
-  var t = '<tr><th>Модификатор</th><th>Станет</th><th>Разница</th></tr>';
+  var t = '<tr><th>'+D.th_mod+'</th><th>'+D.th_becomes+'</th><th>'+D.th_diff+'</th></tr>';
   var any = false;
   for(var i=0;i<opts.length;i++){
     var key = opts[i][0], d = opts[i][1];
@@ -492,21 +1062,20 @@ function renderDeltas(a){
     any = true;
     t += '<tr><td>' + opts[i][2] + '</td><td>' + pct(p2) + '</td><td>' + pp(p2 - a.p) + '</td></tr>';
   }
-  el.deltas.innerHTML = any ? t : '<tr><td class="empty">Пределы достигнуты</td></tr>';
+  el.deltas.innerHTML = any ? t : '<tr><td class="empty">' + D.limits + '</td></tr>';
 }
 
 function renderSeries(a){
   if(state.rolls < 2){
-    el.series.innerHTML = '<div class="empty">Поставь «Бросков подряд» больше 1 — появится расчёт серии.</div>';
+    el.series.innerHTML = '<div class="empty">' + D.s_empty + '</div>';
     return;
   }
   var b = binomAtLeast(state.rolls, a.p);
-  var t = '<table><tr><th>Успехов</th><th>Шанс</th></tr>';
+  var t = '<table><tr><th>'+D.th_succ+'</th><th>'+D.th_chance+'</th></tr>';
   for(var k=1;k<=state.rolls;k++){
-    t += '<tr' + (k===1?' class="hl"':'') + '><td>' + k + ' и больше</td><td>' + pct(b[k]) + '</td></tr>';
+    t += '<tr' + (k===1?' class="hl"':'') + '><td>' + D.orMore(k) + '</td><td>' + pct(b[k]) + '</td></tr>';
   }
-  t += '</table><div class="note">Среднее число успехов: <b>' + num(state.rolls * a.p) +
-       '</b> из ' + state.rolls + '. Броски считаются независимыми.</div>';
+  t += '</table><div class="note">' + D.sNote(num(state.rolls * a.p), state.rolls) + '</div>';
   el.series.innerHTML = t;
 }
 
@@ -535,7 +1104,68 @@ function rollOnce(){
   return { dice:dice, usedSet:usedSet, raw:raw, val:val, ok:ok, cs:isCS, cf:isCF };
 }
 
+/* тот же отбор кубов, но исход берётся из таблицы ранений */
+function rollOnceInjury(){
+  var sh = shape(state), i;
+  var dice = [];
+  for(i=0;i<sh.N;i++) dice.push(rnd());
+  var idx = dice.map(function(v,j){ return j; });
+  idx.sort(function(x,y){ return sh.mode==='best' ? dice[y]-dice[x] : dice[x]-dice[y]; });
+  var used = idx.slice(0, sh.K);
+  var usedSet = {}; used.forEach(function(j){ usedSet[j] = true; });
+  var raw = used.reduce(function(acc,j){ return acc + dice[j]; }, 0);
+  var val = raw + state.flat - state.armour;
+  return { dice:dice, usedSet:usedSet, raw:raw, val:val, b:injuryBucket(val) };
+}
+
+function doRollInjury(){
+  var res = [], i, counts = [0,0,0,0];
+  for(i=0;i<state.rolls;i++){ var r = rollOnceInjury(); counts[r.b]++; res.push(r); }
+  lastRoll = res;
+
+  var h = '';
+  if(state.rolls > 1){
+    h += '<div class="summary-line o' + (counts[3] ? '3' : (counts[2] ? '2' : (counts[1] ? '1' : '0'))) +
+         'c">' + D.injSummary(counts) + '</div>';
+  }
+  for(i=0;i<res.length;i++){
+    var q = res[i];
+    h += '<div class="rollcard">';
+    h += '<div class="top"><span>' + (state.rolls>1 ? D.rollN(i+1) : D.dice_w) + '</span><span class="o' +
+         q.b + 'c">' + (q.b === 3 ? D.injUp[3] : '') + '</span></div>';
+    h += '<div class="dice">';
+    for(var j=0;j<q.dice.length;j++){
+      var cls = 'die' + (q.usedSet[j] ? ' used' : '') +
+                (q.usedSet[j] && q.dice[j]===6 ? ' six' : '') +
+                (q.usedSet[j] && q.dice[j]===1 ? ' one' : '');
+      h += '<div class="' + cls + '">' + q.dice[j] + '</div>';
+    }
+    h += '</div>';
+    h += '<div class="res">' + D.injRes(q.raw, state.flat, state.armour, q.val) +
+         ' → <b class="o' + q.b + 'c">' + D.injUp[q.b] + '</b></div>';
+    h += '</div>';
+  }
+  $('roll-out').innerHTML = h;
+
+  pushHistory(
+    D.tagInjury + ' · ' +
+    (state.rolls>1 ? D.injSummary(counts) : D.injShort[res[0].b]) + ' · ' +
+    res.map(function(r){ return r.val; }).join(', ') +
+    (state.armour ? ' · ' + D.armWord + ' ' + state.armour : '')
+  );
+  open('m-roll');
+}
+
+function pushHistory(line){
+  history.unshift(line);
+  history = history.slice(0, 10);
+  $('hist').innerHTML = history.length
+    ? '<div class="h">' + D.lastrolls + '</div>' + history.map(function(x){ return '<div class="i">' + esc(x) + '</div>'; }).join('')
+    : '';
+}
+
 function doRoll(){
+  if(app.mode === 'injury'){ doRollInjury(); return; }
   var res = [], i;
   for(i=0;i<state.rolls;i++) res.push(rollOnce());
   lastRoll = res;
@@ -543,14 +1173,14 @@ function doRoll(){
   var wins = res.filter(function(r){ return r.ok; }).length;
   var h = '';
   if(state.rolls > 1){
-    h += '<div class="summary-line" style="color:' + (wins>0?'var(--good)':'var(--bad)') + '">Успехов: ' +
-         wins + ' из ' + state.rolls + '</div>';
+    h += '<div class="summary-line" style="color:' + (wins>0?'var(--good)':'var(--bad)') + '">' +
+         D.succOf(wins, state.rolls) + '</div>';
   }
   for(i=0;i<res.length;i++){
     var r = res[i];
     h += '<div class="rollcard">';
-    h += '<div class="top"><span>' + (state.rolls>1 ? 'Бросок ' + (i+1) : 'Кубы') + '</span><span>' +
-         (r.cs ? 'КРИТ. УСПЕХ' : (r.cf ? 'КРИТ. ПРОВАЛ' : '')) + '</span></div>';
+    h += '<div class="top"><span>' + (state.rolls>1 ? D.rollN(i+1) : D.dice_w) + '</span><span>' +
+         (r.cs ? D.crit_succ : (r.cf ? D.crit_fail : '')) + '</span></div>';
     h += '<div class="dice">';
     for(var j=0;j<r.dice.length;j++){
       var cls = 'die' + (r.usedSet[j] ? ' used' : '') +
@@ -559,43 +1189,42 @@ function doRoll(){
       h += '<div class="' + cls + '">' + r.dice[j] + '</div>';
     }
     h += '</div>';
-    h += '<div class="res">Сумма учтённых: <b>' + r.raw + '</b>' +
+    h += '<div class="res">' + D.counted + ' <b>' + r.raw + '</b>' +
          (state.flat ? ' ' + sign(state.flat) + ' = <b>' + r.val + '</b>' : '') +
-         ' → <b class="' + (r.ok?'ok':'no') + '">' + (r.ok ? 'УСПЕХ' : 'ПРОВАЛ') + '</b></div>';
+         ' → <b class="' + (r.ok?'ok':'no') + '">' + (r.ok ? D.SUCC : D.FAIL) + '</b></div>';
     h += '</div>';
   }
   $('roll-out').innerHTML = h;
 
-  history.unshift(
-    (state.rolls>1 ? wins + '/' + state.rolls + ' усп.' : (res[0].ok ? 'успех' : 'провал')) +
+  pushHistory(
+    D.tagAction + ' · ' +
+    (state.rolls>1 ? wins + '/' + state.rolls + ' ' + D.succShort : (res[0].ok ? D.succWord : D.failWord)) +
     ' · ' + res.map(function(r){ return r.raw + (state.flat ? sign(state.flat) : ''); }).join(', ') +
-    ' · цель ' + state.target + '+'
+    ' · ' + D.goal + ' ' + state.target + '+'
   );
-  history = history.slice(0, 10);
-  $('hist').innerHTML = history.length
-    ? '<div class="h">Последние броски</div>' + history.map(function(x){ return '<div class="i">' + esc(x) + '</div>'; }).join('')
-    : '';
 
   open('m-roll');
 }
 
 /* ================= пресеты ================= */
-function describe(s){
+function presetMode(p){ return p && p.mode === 'injury' ? 'injury' : 'action'; }
+function describe(s, mode){
   var sh = shape(s);
-  return sh.N + 'd6, ' + (sh.mode==='best'?'лучшие ':'худшие ') + sh.K +
-         (s.flat ? ', ' + sign(s.flat) : '') + ', цель ' + s.target + '+' +
-         (s.rolls>1 ? ', ×' + s.rolls : '');
+  return mode === 'injury'
+    ? D.tagInjury + ': ' + D.describeInj(sh, s)
+    : D.tagAction + ': ' + D.describe(sh, s);
 }
 function renderPresets(){
   if(!presets.length){
-    $('plist').innerHTML = '<div class="empty">Пресетов пока нет. Настрой бросок и нажми «Сохранить текущий».</div>';
+    $('plist').innerHTML = '<div class="empty">' + D.p_empty + '</div>';
     return;
   }
   $('plist').innerHTML = presets.map(function(p, i){
     return '<div class="pitem">' +
-      '<button class="nm" data-preset-apply="' + i + '"><b>' + esc(p.name) + '</b><span>' + describe(p.state) + '</span></button>' +
-      '<button class="ic" data-preset-rename="' + i + '" title="Переименовать">✎</button>' +
-      '<button class="ic" data-preset-del="' + i + '" title="Удалить">🗑</button>' +
+      '<button class="nm" data-preset-apply="' + i + '"><b>' + esc(p.name) + '</b><span>' +
+        describe(sanitize(p.state, presetMode(p)), presetMode(p)) + '</span></button>' +
+      '<button class="ic" data-preset-rename="' + i + '" title="' + D.p_rename + '">✎</button>' +
+      '<button class="ic" data-preset-del="' + i + '" title="' + D.p_del + '">🗑</button>' +
     '</div>';
   }).join('');
 }
@@ -603,6 +1232,66 @@ function renderPresets(){
 /* ================= модалки ================= */
 function open(id){ $(id).classList.add('on'); }
 function close(id){ $(id).classList.remove('on'); }
+
+/* ================= тост ================= */
+var toastTimer = null;
+function toast(msg, ms){
+  var n = $('toast');
+  n.textContent = msg;
+  n.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ n.classList.remove('on'); }, ms || 3200);
+}
+
+/* ================= системные действия ================= */
+function hasSW(){
+  return ('serviceWorker' in navigator) && location.protocol.indexOf('http') === 0;
+}
+
+/* сброс кэша: чистим Cache Storage и снимаем регистрацию SW, настройки не трогаем */
+function clearCache(){
+  if(!confirm(D.dr_cache_q)) return;
+  var jobs = [];
+  if(window.caches && caches.keys){
+    jobs.push(caches.keys().then(function(keys){
+      return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+    }));
+  }
+  if('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations){
+    jobs.push(navigator.serviceWorker.getRegistrations().then(function(rs){
+      return Promise.all(rs.map(function(r){ return r.unregister(); }));
+    }));
+  }
+  Promise.all(jobs)['catch'](function(){}).then(function(){
+    toast(D.t_cache_done);
+    setTimeout(function(){ location.reload(true); }, 700);
+  });
+}
+
+/* проверка обновления: просим SW перекачать себя, ловим updatefound */
+function checkUpdate(){
+  if(!hasSW()){ toast(D.t_upd_nosw); return; }
+  navigator.serviceWorker.getRegistration().then(function(reg){
+    if(!reg){ toast(D.t_upd_nosw); return; }
+    var found = false;
+    function onFound(){ found = true; }
+    reg.addEventListener('updatefound', onFound);
+    reg.update().then(function(){
+      setTimeout(function(){
+        reg.removeEventListener('updatefound', onFound);
+        if(found || reg.waiting || reg.installing){
+          toast(D.t_upd_found);
+          setTimeout(function(){ location.reload(true); }, 1200);
+        }else{
+          toast(D.t_upd_none);
+        }
+      }, 900);
+    }, function(){
+      reg.removeEventListener('updatefound', onFound);
+      toast(D.t_upd_fail);
+    });
+  })['catch'](function(){ toast(D.t_upd_fail); });
+}
 
 /* ================= события ================= */
 document.addEventListener('click', function(e){
@@ -615,35 +1304,53 @@ document.addEventListener('click', function(e){
     render(); return;
   }
   if((b = t.closest('[data-close]'))){ close(b.getAttribute('data-close')); return; }
+  if((b = t.closest('[data-lang]'))){ setLang(b.getAttribute('data-lang')); render(); return; }
+  if((b = t.closest('[data-tab]'))){ setMode(b.getAttribute('data-tab')); render(); return; }
+  if((b = t.closest('[data-armour]'))){
+    state.armour = clamp('armour', +b.getAttribute('data-armour'));
+    render(); return;
+  }
   if((b = t.closest('[data-preset-apply]'))){
-    state = sanitize(presets[+b.getAttribute('data-preset-apply')].state);
+    var p = presets[+b.getAttribute('data-preset-apply')], pm = presetMode(p);
+    app[pm] = sanitize(p.state, pm);
+    setMode(pm);
     close('m-presets'); render(); return;
   }
   if((b = t.closest('[data-preset-rename]'))){
     var ri = +b.getAttribute('data-preset-rename');
-    var nn = prompt('Новое имя пресета:', presets[ri].name);
+    var nn = prompt(D.p_rename_q, presets[ri].name);
     if(nn && nn.trim()){ presets[ri].name = nn.trim().slice(0,40); savePresets(); renderPresets(); }
     return;
   }
   if((b = t.closest('[data-preset-del]'))){
     var di = +b.getAttribute('data-preset-del');
-    if(confirm('Удалить пресет «' + presets[di].name + '»?')){ presets.splice(di,1); savePresets(); renderPresets(); }
+    if(confirm(D.delQ(presets[di].name))){ presets.splice(di,1); savePresets(); renderPresets(); }
     return;
   }
   if(t.closest('#btn-roll')){ doRoll(); return; }
   if(t.closest('#btn-reroll')){ doRoll(); return; }
+  if(t.closest('#btn-menu')){ open('m-menu'); return; }
+  if(t.closest('#btn-update')){ checkUpdate(); return; }
+  if(t.closest('#btn-cache')){ clearCache(); return; }
+  if(t.closest('#btn-donate')){
+    if(DONATE_URL) window.open(DONATE_URL, '_blank', 'noopener');
+    else toast(D.t_donate, 4200);
+    return;
+  }
   if(t.closest('#btn-presets')){ renderPresets(); open('m-presets'); return; }
   if(t.closest('#btn-save-preset')){
-    var nm = prompt('Название пресета:', describe(state));
+    var nm = prompt(D.p_name_q, describe(state, app.mode));
     if(nm && nm.trim()){
-      presets.unshift({ name:nm.trim().slice(0,40), state:Object.assign({}, state) });
+      presets.unshift({ name:nm.trim().slice(0,40), mode:app.mode, state:Object.assign({}, state) });
       presets = presets.slice(0, 30);
       savePresets(); renderPresets();
     }
     return;
   }
   if(t.closest('#btn-reset')){
-    state = Object.assign({}, DEF); render(); return;
+    app[app.mode] = sanitize(null, app.mode);
+    state = app[app.mode];
+    render(); return;
   }
   /* клик по подложке модалки */
   if(t.classList && t.classList.contains('modal')) t.classList.remove('on');
@@ -668,7 +1375,7 @@ el.crit.addEventListener('change', function(){ state.crit = el.crit.checked; ren
 })();
 
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape'){ close('m-roll'); close('m-presets'); }
+  if(e.key === 'Escape'){ close('m-roll'); close('m-presets'); close('m-menu'); }
 });
 
 render();

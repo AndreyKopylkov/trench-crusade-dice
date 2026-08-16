@@ -37,7 +37,9 @@ document.querySelector('[data-step="dice:1"]').click();
 document.getElementById('pct').textContent;
 ```
 
-Any change to `analyse`, `diceDist`, or the crit constants must be re-verified this way across several configurations, including negative dice modifiers and `sum > 0`. Brute force is only tractable up to about `N = 10`; the app itself supports up to 12 dice.
+Any change to `analyse`, `analyseInjury`, `diceDist`, the crit constants, or the injury bucket boundaries must be re-verified this way across several configurations, including negative dice modifiers, `sum > 0`, and every armour value. Brute force is only tractable up to about `N = 10`; the app itself supports up to 12 dice.
+
+The engine functions are DOM-free and contiguous in the script (from `var FACT = [1];` down to the `/* биномиальное распределение серии */` comment), so they can also be sliced out of `index.html` and driven from Node against a brute-force enumerator — faster than clicking steppers when sweeping hundreds of configurations. The same trick works for the state block (`var LIMITS` down to the language section) with a stubbed `localStorage`, which is how the migration paths are checked.
 
 ## Domain model
 
@@ -53,19 +55,34 @@ The `sum` axis (labelled "кубик в сумму") is **not** part of the net 
 
 Crits are evaluated on the raw sum of the counted dice, **before** the flat modifier: `>= CRIT_HI` (12) is an automatic success, `<= CRIT_LO` (2) an automatic failure. With `K >= 3` a crit failure is unreachable — that is intended, not a bug. The `crit` flag in state disables both.
 
+### Two roll types
+
+The app has two modes, switched by the tabs under the header and held in `app.mode`:
+
+- `action` — the success roll described above (attacks, tests). Threshold `target`, binary outcome.
+- `injury` — the injury roll. Same dice shape, but the total is `counted dice + flat − armour` and the result is looked up in a four-bucket table: `<= 1` nothing, `2..6` blood marker, `7..8` blood marker + prone, `>= 9` death. The ends are **open** — a total of 15 is still death, a total of −3 is still nothing.
+
+Injury rolls have **no crits**: the toggle is hidden and `analyseInjury` never looks at `CRIT_HI`/`CRIT_LO`. Armour is a separate 0–3 control even though it is mathematically identical to a negative `flat` — the two are distinct things at the table (your weapon versus their armour) and are shown separately in the formula line, the roll breakdown, and the deltas panel. Note the mirror of the crit quirk: with `sum >= 1` the minimum total is 3, so the "nothing" bucket becomes unreachable without armour or a negative modifier. Intended, not a bug.
+
 ## Architecture
 
-**Engine** (`diceDist` / `analyse`). `diceDist` does not enumerate `6^N` outcomes. It enumerates face-count histograms — compositions of `N` into 6 buckets — and weights each by its multinomial coefficient, which keeps 12 dice at a few thousand iterations. Selecting the counted dice is a walk over faces from 6 down (or 1 up) taking `min(count, remaining)`. Results are memoized in `distCache` keyed `N:K:mode`, so the deltas panel recomputing five neighbouring configurations on every render is nearly free.
+**Engine** (`diceDist` / `analyse` / `analyseInjury`). `diceDist` does not enumerate `6^N` outcomes. It enumerates face-count histograms — compositions of `N` into 6 buckets — and weights each by its multinomial coefficient, which keeps 12 dice at a few thousand iterations. Selecting the counted dice is a walk over faces from 6 down (or 1 up) taking `min(count, remaining)`. Results are memoized in `distCache` keyed `N:K:mode`, shared by both modes, so the deltas panel recomputing five to seven neighbouring configurations on every render is nearly free.
 
-`analyse(s)` takes a **state object, not the global state** — the deltas panel depends on this to evaluate hypothetical states. Keep it pure.
+`analyse(s)` and `analyseInjury(s)` both take a **state object, not the global state** — the deltas panels depend on this to evaluate hypothetical states. Keep them pure. They are deliberately separate functions over the same `diceDist`: `analyse` is the verified success-roll path and should not grow a mode flag.
 
-**State.** One flat object: `dice`, `flat`, `sum`, `target`, `rolls`, `crit`. `LIMITS` drives both `clamp()` and the disabled state of the stepper buttons; adding a numeric control means adding a `LIMITS` entry, or `sanitize()` will drop it. Persisted to `localStorage` under `tc-dice-state`, presets under `tc-dice-presets`, accordion open-state under `tc-dice-acc` — every access is wrapped in try/catch because `data:` and some `file://` contexts disable storage.
+**State.** `app = { mode, action:{…}, injury:{…} }`, and the global `state` is a live reference to `app[app.mode]` — `setMode()` repoints it, and everything else mutates `state` in place. `LIMITS` holds the range of every numeric field across both modes and drives `clamp()` plus the disabled state of the steppers; `FIELDS` says which fields each mode actually owns (`target` is action-only, `armour` is injury-only) and `sanitize(s, mode)` drops everything else. Adding a control means adding both a `LIMITS` entry and a `FIELDS` entry, or it will be silently dropped on save. Persisted to `localStorage` under `tc-dice-state`, presets under `tc-dice-presets`, accordion open-state under `tc-dice-acc` — every access is wrapped in try/catch because `data:` and some `file://` contexts disable storage. `loadState()` migrates the old flat single-mode object by treating a stored object with no `action` key as an action state; presets do the same via `presetMode()`, defaulting to action.
+
+**Mode-dependent UI.** `render()` stamps `data-mode` on `<body>` and CSS does the showing and hiding (`body[data-mode="action"] [data-only="injury"]`), so mode-specific markup is marked with `data-only` rather than toggled from JS. Elements whose *text* changes between modes (the three stat tiles `#k-1..3`, the roll button, the `#acc-cum-label` summary) carry no `data-i18n` — `render()` sets them, because `applyStatic()` would overwrite mode-aware text with the plain key.
+
+**Localization.** `I18N` holds two complete dictionaries (`ru`, `en`); `D` points at the active one and is swapped by `setLang()`. Plain strings are keys, parametrized text is a function on the dictionary (`D.formula(a, s)`, `D.describe(sh, s)`, `D.sNote(...)`). Static markup carries `data-i18n` (textContent) and `data-i18n-title` (title + aria-label); `applyStatic()` rewrites them and runs first inside `render()`. **Every new user-visible string needs a key in both dictionaries** — a missing key silently leaves the Russian fallback text from the markup. Decimal separator is language-dependent via `dec()`, so use `pct`/`pct1`/`num` rather than `toFixed` directly. Language lives outside `state` under `tc-dice-lang`, deliberately: presets store a snapshot of `state`, and applying one must not change the UI language.
+
+**Drawer.** `#m-menu` holds the system actions: language toggle, `checkUpdate()` (calls `registration.update()` and watches `updatefound`), `clearCache()` (confirms, wipes Cache Storage + unregisters service workers, keeps localStorage), links, and a donate button gated on the `DONATE_URL` constant — empty means the button only shows a toast. `APP_VERSION` and `LAST_UPDATE` are displayed at the bottom of the drawer and are updated by hand at release time.
 
 **Rendering.** `render()` is the only entry point: it rewrites every control, panel, and the sticky footer from scratch. Every mutation ends with a `render()` call rather than a targeted DOM update.
 
-**Events.** A single delegated `click` listener on `document` dispatches on `data-step`, `data-close`, `data-preset-*` attributes and a few button ids. New interactive elements should use a `data-*` attribute rather than their own listener.
+**Events.** A single delegated `click` listener on `document` dispatches on `data-step`, `data-close`, `data-tab`, `data-armour`, `data-lang`, `data-preset-*` attributes and a few button ids. New interactive elements should use a `data-*` attribute rather than their own listener.
 
-**Roller.** `rollOnce()` mirrors the engine's selection logic independently (sorted indices instead of histograms) — a change to the counting rules has to be applied in both places. It uses rejection-sampled `crypto.getRandomValues` to avoid modulo bias.
+**Roller.** `rollOnce()` and `rollOnceInjury()` mirror the engine's selection logic independently (sorted indices instead of histograms) — a change to the counting rules has to be applied in **all three** places. They use rejection-sampled `crypto.getRandomValues` to avoid modulo bias. `doRoll()` dispatches on the mode; both paths funnel their log line through `pushHistory()`, which keeps one shared 10-entry list tagged with the roll type.
 
 ## Service worker gotcha
 
