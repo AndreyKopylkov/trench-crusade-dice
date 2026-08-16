@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12100e">
+<title>Trench Crusade — Калькулятор кубиков</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{
+  --bg:#12100e; --bg2:#1b1815; --card:#221e1a; --card2:#2b2621;
+  --line:#3a332c; --text:#e8e0d4; --muted:#9a8f80; --dim:#6a6157;
+  --accent:#c8a24a; --good:#7fae5a; --bad:#b4514a; --radius:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16px;line-height:1.4;
+  padding-bottom:calc(124px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:760px;margin:0 auto;padding:14px 14px 8px}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
+
+header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+h1{font-size:17px;margin:0;font-weight:700;flex:1 1 auto}
+h1 small{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.hbtn{width:44px;height:44px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.hbtn:active{background:var(--card2)}
+.hbtn svg{width:22px;height:22px;fill:none;stroke:var(--text);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+.controls{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:560px){.controls{grid-template-columns:1fr 1fr}}
+.ctl{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+.ctl .label{font-size:13px;color:var(--muted)}
+.ctl .hint{font-size:11px;color:var(--dim);margin-bottom:10px}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{
+  width:52px;height:52px;border-radius:12px;background:var(--card2);border:1px solid var(--line);
+  font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto;user-select:none;transition:background .12s,transform .06s;
+}
+.stepper button:active{transform:scale(.94);background:#3a332c}
+.stepper button:disabled{opacity:.28}
+.stepper .val{flex:1 1 auto;text-align:center;font-size:29px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent)}
+.stepper .val.neutral{color:var(--text)}
+
+.toggle{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-top:10px;cursor:pointer}
+.toggle input{width:22px;height:22px;accent-color:var(--accent);flex:0 0 auto;margin:1px 0 0}
+.toggle .t{font-size:14px}
+.toggle .s{font-size:11px;color:var(--muted)}
+
+.formula{margin-top:12px;background:var(--bg2);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px;font-size:13px;color:var(--muted)}
+.formula b{color:var(--text);font-weight:600}
+
+.roll-btn{
+  margin-top:12px;width:100%;padding:16px;border-radius:var(--radius);
+  background:linear-gradient(180deg,#c8a24a,#a8853a);color:#1b1510;
+  font-size:17px;font-weight:700;letter-spacing:.03em;border:none;
+}
+.roll-btn:active{filter:brightness(.9)}
+
+details.acc{margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+details.acc>summary{
+  list-style:none;cursor:pointer;padding:14px;font-size:13px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+  display:flex;align-items:center;justify-content:space-between;
+}
+details.acc>summary::-webkit-details-marker{display:none}
+details.acc>summary::after{content:'+';font-size:20px;color:var(--dim);line-height:1}
+details.acc[open]>summary::after{content:'–'}
+details.acc[open]>summary{color:var(--text);border-bottom:1px solid var(--line)}
+.acc-body{padding:12px 14px 14px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+.stat .k{font-size:11px;color:var(--muted)}
+.stat .v{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+
+.row{display:flex;align-items:center;gap:8px;margin:3px 0;font-variant-numeric:tabular-nums}
+.row .n{width:30px;text-align:right;font-size:13px;color:var(--muted);flex:0 0 auto}
+.row .barwrap{flex:1 1 auto;height:15px;background:#1a1714;border-radius:5px;overflow:hidden}
+.row .bar{height:100%;border-radius:5px;background:var(--bad)}
+.row.ok .bar{background:var(--good)}
+.row.ok .n{color:var(--text)}
+.row .p{width:52px;text-align:right;font-size:12px;color:var(--muted);flex:0 0 auto}
+
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:7px 6px;text-align:right;font-size:13px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:none}
+th{color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+td:first-child,th:first-child{text-align:left}
+tr.hl td{color:var(--accent);font-weight:700}
+.delta.up{color:var(--good)}
+.delta.down{color:var(--bad)}
+.delta.zero{color:var(--dim)}
+.note{font-size:11px;color:var(--dim);margin-top:8px}
+
+.bottom{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:rgba(18,16,14,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+}
+.bottom .inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.bottom .big{font-size:38px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--good);flex:0 0 auto}
+.bottom .meta{flex:1 1 auto;font-size:11px;color:var(--muted);min-width:0}
+.bottom .meta b{display:block;color:var(--text);font-size:13px;font-weight:600;margin-bottom:2px}
+.gauge{height:6px;background:#1a1714;border-radius:3px;overflow:hidden;margin-top:7px}
+.gauge i{display:block;height:100%;background:var(--good);width:0}
+
+/* модалки */
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:flex-end;justify-content:center;background:rgba(8,7,6,.72)}
+.modal.on{display:flex}
+@media(min-width:560px){.modal{align-items:center}}
+.sheet{
+  width:100%;max-width:560px;max-height:88vh;overflow-y:auto;
+  background:var(--bg2);border:1px solid var(--line);
+  border-radius:18px 18px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom));
+}
+@media(min-width:560px){.sheet{border-radius:18px;max-height:82vh}}
+.sheet h3{margin:0 0 12px;font-size:15px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.sheet h3 .x{font-size:26px;color:var(--muted);line-height:1;padding:0 6px}
+
+.rollcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.rollcard .top{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+.dice{display:flex;flex-wrap:wrap;gap:6px}
+.die{
+  width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:19px;font-weight:700;background:var(--card2);border:1px solid var(--line);color:var(--dim);
+}
+.die.used{background:#e8e0d4;color:#1b1510;border-color:#e8e0d4}
+.die.used.six{background:var(--accent);border-color:var(--accent)}
+.die.used.one{background:var(--bad);border-color:var(--bad);color:#fff}
+.rollcard .res{margin-top:8px;font-size:14px;font-variant-numeric:tabular-nums}
+.rollcard .res b.ok{color:var(--good)}
+.rollcard .res b.no{color:var(--bad)}
+.summary-line{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;font-size:16px;font-weight:700;margin-bottom:10px}
+.sheet .actions{display:flex;gap:8px;margin-top:4px}
+.sheet .actions button{flex:1 1 0;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:15px;font-weight:600}
+.sheet .actions button.primary{background:var(--accent);color:#1b1510;border-color:var(--accent)}
+.hist{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.hist .h{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.hist div.i{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;padding:2px 0}
+
+.plist{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.pitem{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.pitem .nm{flex:1 1 auto;min-width:0;text-align:left}
+.pitem .nm b{display:block;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pitem .nm span{font-size:11px;color:var(--muted)}
+.pitem .ic{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card2);display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:15px}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:18px 0}
+footer{color:var(--dim);font-size:11px;text-align:center;padding:16px 0 4px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Калькулятор кубиков<small>Trench Crusade · 2d6</small></h1>
+    <button class="hbtn" id="btn-presets" title="Пресеты" aria-label="Пресеты">
+      <svg viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>
+    </button>
+    <button class="hbtn" id="btn-reset" title="Сбросить" aria-label="Сбросить">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+    </button>
+  </header>
+
+  <div class="controls">
+    <div class="ctl">
+      <div class="label">Кубики (±)</div><div class="hint">+ преимущество · − помеха</div>
+      <div class="stepper"><button data-step="dice:-1">−</button><div class="val" id="v-dice">0</div><button data-step="dice:1">+</button></div>
+    </div>
+    <div class="ctl">
+      <div class="label">Модификатор к результату (±)</div><div class="hint">прибавляется к сумме кубов</div>
+      <div class="stepper"><button data-step="flat:-1">−</button><div class="val" id="v-flat">0</div><button data-step="flat:1">+</button></div>
+    </div>
+    <div class="ctl">
+      <div class="label">Кубик в сумму</div><div class="hint">даёт куб и место в сумме</div>
+      <div class="stepper"><button data-step="sum:-1">−</button><div class="val neutral" id="v-sum">0</div><button data-step="sum:1">+</button></div>
+    </div>
+    <div class="ctl">
+      <div class="label">Порог успеха</div><div class="hint">базовый 7+</div>
+      <div class="stepper"><button data-step="target:-1">−</button><div class="val neutral" id="v-target">7</div><button data-step="target:1">+</button></div>
+    </div>
+    <div class="ctl">
+      <div class="label">Бросков подряд</div><div class="hint">серия атак / проверок</div>
+      <div class="stepper"><button data-step="rolls:-1">−</button><div class="val neutral" id="v-rolls">1</div><button data-step="rolls:1">+</button></div>
+    </div>
+  </div>
+
+  <label class="toggle">
+    <input type="checkbox" id="crit" checked>
+    <span>
+      <span class="t">Криты решают исход</span><br>
+      <span class="s">сумма учтённых кубов 12+ — автоуспех, 2 и меньше — автопровал (до модификатора)</span>
+    </span>
+  </label>
+
+  <div class="formula" id="formula"></div>
+  <button class="roll-btn" id="btn-roll">Бросить кубы</button>
+
+  <div class="stats">
+    <div class="stat"><div class="k">Крит. успех</div><div class="v" id="s-cs">—</div></div>
+    <div class="stat"><div class="k">Крит. провал</div><div class="v" id="s-cf">—</div></div>
+    <div class="stat"><div class="k">Средний бросок</div><div class="v" id="s-ev">—</div></div>
+  </div>
+
+  <details class="acc" data-acc="deltas" open>
+    <summary>Что даст ещё один модификатор</summary>
+    <div class="acc-body"><table id="t-deltas"></table></div>
+  </details>
+
+  <details class="acc" data-acc="series">
+    <summary>Серия бросков</summary>
+    <div class="acc-body"><div id="series-body"></div></div>
+  </details>
+
+  <details class="acc" data-acc="dist">
+    <summary>Распределение суммы</summary>
+    <div class="acc-body"><div id="chart"></div></div>
+  </details>
+
+  <details class="acc" data-acc="cum">
+    <summary>Шанс выбросить X или выше</summary>
+    <div class="acc-body"><table id="t-cum"></table></div>
+  </details>
+
+  <footer>Точный расчёт перебором всех исходов. Работает без интернета.</footer>
+</div>
+
+<div class="bottom">
+  <div class="inner">
+    <div class="big" id="pct">58,33%</div>
+    <div class="meta">
+      <b id="meta-title">Шанс успеха</b>
+      <span id="meta-sub"></span>
+      <div class="gauge"><i id="gauge"></i></div>
+    </div>
+  </div>
+</div>
+
+<!-- модалка броска -->
+<div class="modal" id="m-roll">
+  <div class="sheet">
+    <h3><span>Бросок</span><button class="x" data-close="m-roll">×</button></h3>
+    <div id="roll-out"></div>
+    <div class="actions">
+      <button class="primary" id="btn-reroll">Бросить ещё раз</button>
+      <button data-close="m-roll">Закрыть</button>
+    </div>
+    <div class="hist" id="hist"></div>
+  </div>
+</div>
+
+<!-- модалка пресетов -->
+<div class="modal" id="m-presets">
+  <div class="sheet">
+    <h3><span>Пресеты</span><button class="x" data-close="m-presets">×</button></h3>
+    <div class="plist" id="plist"></div>
+    <div class="actions">
+      <button class="primary" id="btn-save-preset">Сохранить текущий</button>
+      <button data-close="m-presets">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= состояние ================= */
+var LIMITS = { dice:[-6,6], flat:[-10,10], sum:[0,4], target:[2,20], rolls:[1,10] };
+var DEF = { dice:0, flat:0, sum:0, target:7, rolls:1, crit:true };
+var K_STATE = 'tc-dice-state', K_PRESETS = 'tc-dice-presets', K_ACC = 'tc-dice-acc';
+
+var state = loadState();
+var presets = loadPresets();
+var history = [];
+var lastRoll = null;
+
+function clamp(key, v){ var l = LIMITS[key]; return Math.max(l[0], Math.min(l[1], Math.round(v))); }
+function sanitize(s){
+  var out = { crit: typeof s.crit === 'boolean' ? s.crit : DEF.crit };
+  for(var k in LIMITS) out[k] = typeof s[k] === 'number' ? clamp(k, s[k]) : DEF[k];
+  return out;
+}
+function loadState(){
+  try{ var r = localStorage.getItem(K_STATE); return r ? sanitize(JSON.parse(r)) : Object.assign({}, DEF); }
+  catch(e){ return Object.assign({}, DEF); }
+}
+function saveState(){ try{ localStorage.setItem(K_STATE, JSON.stringify(state)); }catch(e){} }
+function loadPresets(){
+  try{ var r = JSON.parse(localStorage.getItem(K_PRESETS) || '[]'); return Array.isArray(r) ? r : []; }
+  catch(e){ return []; }
+}
+function savePresets(){ try{ localStorage.setItem(K_PRESETS, JSON.stringify(presets)); }catch(e){} }
+
+/* ================= математика ================= */
+var FACT = [1];
+for(var i=1;i<=32;i++) FACT[i] = FACT[i-1]*i;
+function multinomial(n, c){ var r = FACT[n]; for(var f=0;f<6;f++) r /= FACT[c[f]]; return r; }
+
+var CRIT_HI = 12;   // сумма учтённых кубов >= 12 — крит-успех
+var CRIT_LO = 2;    // сумма учтённых кубов <= 2  — крит-провал
+
+/* распределение суммы учтённых кубов; кэш по (N,K,mode) */
+var distCache = {};
+function diceDist(N, K, mode){
+  var key = N + ':' + K + ':' + mode;
+  if(distCache[key]) return distCache[key];
+
+  var dist = {}, counts = [0,0,0,0,0,0];
+
+  function process(){
+    var w = multinomial(N, counts), need = K, sum = 0, f, take;
+    if(mode === 'best'){
+      for(f=5; f>=0 && need>0; f--){ take = Math.min(counts[f], need); sum += take*(f+1); need -= take; }
+    }else{
+      for(f=0; f<6 && need>0; f++){ take = Math.min(counts[f], need); sum += take*(f+1); need -= take; }
+    }
+    dist[sum] = (dist[sum]||0) + w;
+  }
+  (function rec(face, rem){
+    if(face === 5){ counts[5] = rem; process(); counts[5] = 0; return; }
+    for(var c = rem; c >= 0; c--){ counts[face] = c; rec(face+1, rem-c); }
+    counts[face] = 0;
+  })(0, N);
+
+  var res = { dist:dist, total:Math.pow(6, N) };
+  distCache[key] = res;
+  return res;
+}
+
+function shape(s){
+  var K = 2 + s.sum;
+  return { K:K, N:K + Math.abs(s.dice), mode: s.dice < 0 ? 'worst' : 'best' };
+}
+
+function analyse(s){
+  var sh = shape(s);
+  var d = diceDist(sh.N, sh.K, sh.mode);
+  var keys = Object.keys(d.dist).map(Number).sort(function(a,b){return a-b;});
+  var rows = [], succ = 0, ev = 0, cs = 0, cf = 0;
+
+  for(var i=0;i<keys.length;i++){
+    var raw = keys[i], w = d.dist[raw], val = raw + s.flat;
+    var isCS = raw >= CRIT_HI, isCF = raw <= CRIT_LO;
+    var ok;
+    if(s.crit && isCS) ok = true;
+    else if(s.crit && isCF) ok = false;
+    else ok = val >= s.target;
+
+    if(ok) succ += w;
+    if(isCS) cs += w;
+    if(isCF) cf += w;
+    ev += val * w;
+    rows.push({ raw:raw, val:val, w:w, ok:ok });
+  }
+  return {
+    N:sh.N, K:sh.K, mode:sh.mode, rows:rows, total:d.total,
+    p:succ/d.total, ev:ev/d.total, pcs:cs/d.total, pcf:cf/d.total
+  };
+}
+
+/* биномиальное распределение серии */
+function binomAtLeast(n, p){
+  var out = [], k, c = 1, pk = [];
+  for(k=0;k<=n;k++){
+    if(k>0) c = c * (n-k+1) / k;
+    pk[k] = c * Math.pow(p,k) * Math.pow(1-p, n-k);
+  }
+  var run = 0;
+  for(k=n;k>=0;k--){ run += pk[k]; out[k] = Math.min(1, run); }
+  return out;
+}
+
+/* ================= форматирование ================= */
+function pct(x){ return (x*100).toFixed(2).replace('.', ',') + '%'; }
+function pct1(x){ return (x*100).toFixed(1).replace('.', ',') + '%'; }
+function num(x){ return x.toFixed(2).replace('.', ','); }
+function sign(n){ return n > 0 ? '+' + n : String(n); }
+function pp(d){
+  var v = (d*100);
+  var t = (v>0?'+':(v<0?'−':'')) + Math.abs(v).toFixed(2).replace('.', ',') + ' п.п.';
+  return '<span class="delta ' + (v>0.0049?'up':(v<-0.0049?'down':'zero')) + '">' + t + '</span>';
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+/* ================= DOM ================= */
+var $ = function(id){ return document.getElementById(id); };
+var el = {
+  formula:$('formula'), chart:$('chart'), cum:$('t-cum'), deltas:$('t-deltas'),
+  series:$('series-body'), pct:$('pct'), gauge:$('gauge'), metaTitle:$('meta-title'),
+  metaSub:$('meta-sub'), cs:$('s-cs'), cf:$('s-cf'), ev:$('s-ev'), crit:$('crit')
+};
+
+function render(){
+  ['dice','flat','sum','target','rolls'].forEach(function(k){
+    var n = $('v-'+k), v = state[k];
+    n.textContent = (k==='dice'||k==='flat') ? sign(v) : (k==='target' ? v+'+' : (k==='sum' && v>0 ? '+'+v : v));
+    n.className = 'val' + ((k==='dice'||k==='flat'||k==='sum') && v!==0 ? '' : ' neutral');
+    var lo = LIMITS[k][0], hi = LIMITS[k][1];
+    document.querySelector('[data-step="'+k+':-1"]').disabled = v <= lo;
+    document.querySelector('[data-step="'+k+':1"]').disabled = v >= hi;
+  });
+  el.crit.checked = state.crit;
+
+  var a = analyse(state);
+
+  el.formula.innerHTML =
+    'Бросаем <b>' + a.N + 'd6</b>, суммируем <b>' + a.K + ' ' +
+    (a.mode === 'best' ? 'лучших' : 'худших') + '</b>' +
+    (state.flat !== 0 ? ', затем <b>' + sign(state.flat) + '</b> к сумме' : '') +
+    '. Успех при <b>' + state.target + '+</b>.' +
+    (state.crit ? ' Криты: <b>' + CRIT_HI + '+</b> / <b>' + CRIT_LO + '−</b> на кубах.' : '');
+
+  renderChart(a);
+  renderCum(a);
+  renderDeltas(a);
+  renderSeries(a);
+
+  el.cs.textContent = pct(a.pcs);
+  el.cf.textContent = pct(a.pcf);
+  el.ev.textContent = num(a.ev);
+
+  var col = a.p >= 0.5 ? 'var(--good)' : (a.p >= 0.25 ? 'var(--accent)' : 'var(--bad)');
+  el.pct.textContent = pct(a.p);
+  el.pct.style.color = col;
+  el.gauge.style.width = (a.p*100).toFixed(2) + '%';
+  el.gauge.style.background = col;
+  el.metaTitle.textContent = state.rolls > 1 ? 'Шанс успеха одного броска' : 'Шанс успеха';
+  var sub = a.N + 'd6 · ' + (a.mode==='best'?'лучшие ':'худшие ') + a.K +
+            (state.flat ? ' · ' + sign(state.flat) : '') + ' · цель ' + state.target + '+';
+  if(state.rolls > 1){
+    var b = binomAtLeast(state.rolls, a.p);
+    sub += ' · хотя бы 1 из ' + state.rolls + ': ' + pct1(b[1]);
+  }
+  el.metaSub.textContent = sub;
+
+  saveState();
+}
+
+function renderChart(a){
+  var max = 0, i;
+  for(i=0;i<a.rows.length;i++) if(a.rows[i].w > max) max = a.rows[i].w;
+  var h = '';
+  for(i=0;i<a.rows.length;i++){
+    var r = a.rows[i];
+    h += '<div class="row' + (r.ok?' ok':'') + '"><div class="n">' + r.val + '</div>' +
+         '<div class="barwrap"><div class="bar" style="width:' + (r.w/max*100).toFixed(2) + '%"></div></div>' +
+         '<div class="p">' + pct1(r.w/a.total) + '</div></div>';
+  }
+  el.chart.innerHTML = h;
+}
+
+function renderCum(a){
+  var t = '<tr><th>Порог</th><th>Шанс</th><th>Против</th></tr>', run = 0, i;
+  var rows = [];
+  for(i=a.rows.length-1;i>=0;i--){ run += a.rows[i].w; rows.push({ val:a.rows[i].val, p:run/a.total }); }
+  for(i=0;i<rows.length;i++){
+    var c = rows[i];
+    var odds = (c.p >= 1 || c.p <= 0) ? '—' : '1 к ' + num(1/c.p);
+    t += '<tr' + (c.val === state.target ? ' class="hl"' : '') + '><td>' + c.val + '+</td><td>' +
+         pct(c.p) + '</td><td>' + odds + '</td></tr>';
+  }
+  el.cum.innerHTML = t;
+}
+
+function renderDeltas(a){
+  var opts = [
+    ['dice',  1, '+1 кубик к броску'],
+    ['dice', -1, '−1 кубик к броску'],
+    ['flat',  1, '+1 к результату'],
+    ['flat', -1, '−1 к результату'],
+    ['sum',   1, '+1 кубик в сумму']
+  ];
+  var t = '<tr><th>Модификатор</th><th>Станет</th><th>Разница</th></tr>';
+  var any = false;
+  for(var i=0;i<opts.length;i++){
+    var key = opts[i][0], d = opts[i][1];
+    var nv = state[key] + d;
+    if(nv < LIMITS[key][0] || nv > LIMITS[key][1]) continue;
+    var s2 = Object.assign({}, state); s2[key] = nv;
+    var p2 = analyse(s2).p;
+    any = true;
+    t += '<tr><td>' + opts[i][2] + '</td><td>' + pct(p2) + '</td><td>' + pp(p2 - a.p) + '</td></tr>';
+  }
+  el.deltas.innerHTML = any ? t : '<tr><td class="empty">Пределы достигнуты</td></tr>';
+}
+
+function renderSeries(a){
+  if(state.rolls < 2){
+    el.series.innerHTML = '<div class="empty">Поставь «Бросков подряд» больше 1 — появится расчёт серии.</div>';
+    return;
+  }
+  var b = binomAtLeast(state.rolls, a.p);
+  var t = '<table><tr><th>Успехов</th><th>Шанс</th></tr>';
+  for(var k=1;k<=state.rolls;k++){
+    t += '<tr' + (k===1?' class="hl"':'') + '><td>' + k + ' и больше</td><td>' + pct(b[k]) + '</td></tr>';
+  }
+  t += '</table><div class="note">Среднее число успехов: <b>' + num(state.rolls * a.p) +
+       '</b> из ' + state.rolls + '. Броски считаются независимыми.</div>';
+  el.series.innerHTML = t;
+}
+
+/* ================= бросок ================= */
+function rnd(){
+  if(window.crypto && crypto.getRandomValues){
+    var u = new Uint32Array(1);
+    do { crypto.getRandomValues(u); } while(u[0] >= 4294967292);
+    return u[0] % 6 + 1;
+  }
+  return Math.floor(Math.random()*6) + 1;
+}
+
+function rollOnce(){
+  var sh = shape(state), i;
+  var dice = [];
+  for(i=0;i<sh.N;i++) dice.push(rnd());
+  var idx = dice.map(function(v,j){ return j; });
+  idx.sort(function(x,y){ return sh.mode==='best' ? dice[y]-dice[x] : dice[x]-dice[y]; });
+  var used = idx.slice(0, sh.K);
+  var usedSet = {}; used.forEach(function(j){ usedSet[j] = true; });
+  var raw = used.reduce(function(acc,j){ return acc + dice[j]; }, 0);
+  var isCS = state.crit && raw >= CRIT_HI, isCF = state.crit && raw <= CRIT_LO;
+  var val = raw + state.flat;
+  var ok = isCS ? true : (isCF ? false : val >= state.target);
+  return { dice:dice, usedSet:usedSet, raw:raw, val:val, ok:ok, cs:isCS, cf:isCF };
+}
+
+function doRoll(){
+  var res = [], i;
+  for(i=0;i<state.rolls;i++) res.push(rollOnce());
+  lastRoll = res;
+
+  var wins = res.filter(function(r){ return r.ok; }).length;
+  var h = '';
+  if(state.rolls > 1){
+    h += '<div class="summary-line" style="color:' + (wins>0?'var(--good)':'var(--bad)') + '">Успехов: ' +
+         wins + ' из ' + state.rolls + '</div>';
+  }
+  for(i=0;i<res.length;i++){
+    var r = res[i];
+    h += '<div class="rollcard">';
+    h += '<div class="top"><span>' + (state.rolls>1 ? 'Бросок ' + (i+1) : 'Кубы') + '</span><span>' +
+         (r.cs ? 'КРИТ. УСПЕХ' : (r.cf ? 'КРИТ. ПРОВАЛ' : '')) + '</span></div>';
+    h += '<div class="dice">';
+    for(var j=0;j<r.dice.length;j++){
+      var cls = 'die' + (r.usedSet[j] ? ' used' : '') +
+                (r.usedSet[j] && r.dice[j]===6 ? ' six' : '') +
+                (r.usedSet[j] && r.dice[j]===1 ? ' one' : '');
+      h += '<div class="' + cls + '">' + r.dice[j] + '</div>';
+    }
+    h += '</div>';
+    h += '<div class="res">Сумма учтённых: <b>' + r.raw + '</b>' +
+         (state.flat ? ' ' + sign(state.flat) + ' = <b>' + r.val + '</b>' : '') +
+         ' → <b class="' + (r.ok?'ok':'no') + '">' + (r.ok ? 'УСПЕХ' : 'ПРОВАЛ') + '</b></div>';
+    h += '</div>';
+  }
+  $('roll-out').innerHTML = h;
+
+  history.unshift(
+    (state.rolls>1 ? wins + '/' + state.rolls + ' усп.' : (res[0].ok ? 'успех' : 'провал')) +
+    ' · ' + res.map(function(r){ return r.raw + (state.flat ? sign(state.flat) : ''); }).join(', ') +
+    ' · цель ' + state.target + '+'
+  );
+  history = history.slice(0, 10);
+  $('hist').innerHTML = history.length
+    ? '<div class="h">Последние броски</div>' + history.map(function(x){ return '<div class="i">' + esc(x) + '</div>'; }).join('')
+    : '';
+
+  open('m-roll');
+}
+
+/* ================= пресеты ================= */
+function describe(s){
+  var sh = shape(s);
+  return sh.N + 'd6, ' + (sh.mode==='best'?'лучшие ':'худшие ') + sh.K +
+         (s.flat ? ', ' + sign(s.flat) : '') + ', цель ' + s.target + '+' +
+         (s.rolls>1 ? ', ×' + s.rolls : '');
+}
+function renderPresets(){
+  if(!presets.length){
+    $('plist').innerHTML = '<div class="empty">Пресетов пока нет. Настрой бросок и нажми «Сохранить текущий».</div>';
+    return;
+  }
+  $('plist').innerHTML = presets.map(function(p, i){
+    return '<div class="pitem">' +
+      '<button class="nm" data-preset-apply="' + i + '"><b>' + esc(p.name) + '</b><span>' + describe(p.state) + '</span></button>' +
+      '<button class="ic" data-preset-rename="' + i + '" title="Переименовать">✎</button>' +
+      '<button class="ic" data-preset-del="' + i + '" title="Удалить">🗑</button>' +
+    '</div>';
+  }).join('');
+}
+
+/* ================= модалки ================= */
+function open(id){ $(id).classList.add('on'); }
+function close(id){ $(id).classList.remove('on'); }
+
+/* ================= события ================= */
+document.addEventListener('click', function(e){
+  var t = e.target.closest ? e.target : e.target.parentNode;
+  var b;
+
+  if((b = t.closest('[data-step]'))){
+    var p = b.getAttribute('data-step').split(':');
+    state[p[0]] = clamp(p[0], state[p[0]] + parseInt(p[1], 10));
+    render(); return;
+  }
+  if((b = t.closest('[data-close]'))){ close(b.getAttribute('data-close')); return; }
+  if((b = t.closest('[data-preset-apply]'))){
+    state = sanitize(presets[+b.getAttribute('data-preset-apply')].state);
+    close('m-presets'); render(); return;
+  }
+  if((b = t.closest('[data-preset-rename]'))){
+    var ri = +b.getAttribute('data-preset-rename');
+    var nn = prompt('Новое имя пресета:', presets[ri].name);
+    if(nn && nn.trim()){ presets[ri].name = nn.trim().slice(0,40); savePresets(); renderPresets(); }
+    return;
+  }
+  if((b = t.closest('[data-preset-del]'))){
+    var di = +b.getAttribute('data-preset-del');
+    if(confirm('Удалить пресет «' + presets[di].name + '»?')){ presets.splice(di,1); savePresets(); renderPresets(); }
+    return;
+  }
+  if(t.closest('#btn-roll')){ doRoll(); return; }
+  if(t.closest('#btn-reroll')){ doRoll(); return; }
+  if(t.closest('#btn-presets')){ renderPresets(); open('m-presets'); return; }
+  if(t.closest('#btn-save-preset')){
+    var nm = prompt('Название пресета:', describe(state));
+    if(nm && nm.trim()){
+      presets.unshift({ name:nm.trim().slice(0,40), state:Object.assign({}, state) });
+      presets = presets.slice(0, 30);
+      savePresets(); renderPresets();
+    }
+    return;
+  }
+  if(t.closest('#btn-reset')){
+    state = Object.assign({}, DEF); render(); return;
+  }
+  /* клик по подложке модалки */
+  if(t.classList && t.classList.contains('modal')) t.classList.remove('on');
+});
+
+el.crit.addEventListener('change', function(){ state.crit = el.crit.checked; render(); });
+
+/* аккордеоны: запоминаем открытые */
+(function(){
+  var open_ = {};
+  try{ open_ = JSON.parse(localStorage.getItem(K_ACC) || 'null') || { deltas:true }; }
+  catch(e){ open_ = { deltas:true }; }
+  var accs = document.querySelectorAll('details.acc');
+  Array.prototype.forEach.call(accs, function(d){
+    var k = d.getAttribute('data-acc');
+    d.open = !!open_[k];
+    d.addEventListener('toggle', function(){
+      open_[k] = d.open;
+      try{ localStorage.setItem(K_ACC, JSON.stringify(open_)); }catch(e){}
+    });
+  });
+})();
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){ close('m-roll'); close('m-presets'); }
+});
+
+render();
+
+if('serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "Trench Crusade — Калькулятор кубиков",
+  "short_name": "TC Dice",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#12100e",
+  "theme_color": "#12100e",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjkwIiBmaWxsPSIjMTIxMDBlIi8+PHJlY3QgeD0iODAiIHk9IjgwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcng9IjM0IiBmaWxsPSIjZThlMGQ0Ii8+PGNpcmNsZSBjeD0iMTM1IiBjeT0iMTM1IiByPSIyMiIgZmlsbD0iIzEyMTAwZSIvPjxjaXJjbGUgY3g9IjIyNSIgY3k9IjIyNSIgcj0iMjIiIGZpbGw9IiMxMjEwMGUiLz48cmVjdCB4PSIyMzIiIHk9IjIzMiIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIzNCIgZmlsbD0iI2M4YTI0YSIvPjxjaXJjbGUgY3g9IjI4NyIgY3k9IjI4NyIgcj0iMjIiIGZpbGw9IiMxMjEwMGUiLz48Y2lyY2xlIGN4PSIzMzIiIGN5PSIzMzIiIHI9IjIyIiBmaWxsPSIjMTIxMDBlIi8+PGNpcmNsZSBjeD0iMzc3IiBjeT0iMzc3IiByPSIyMiIgZmlsbD0iIzEyMTAwZSIvPjwvc3ZnPg==",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
