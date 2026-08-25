@@ -1,6 +1,7 @@
 {
-  "name": "Trench Crusade - dice builder",
-  "short_name": "Dice builder",
+  "name": "Trench Crusade Dice Builder",
+  "short_name": "Trench Crusade Dice",
+  "description": "Trench Crusade Dice Builder — offline dice probability calculator for Trench Crusade.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
